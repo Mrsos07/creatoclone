@@ -92,4 +92,16 @@ app.patch('/api/templates/:id', (req, res) => {
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
 const port = process.env.PORT || 4000;
+// If a built frontend exists in ../dist (copied by Dockerfile), serve it
+const distPath = path.join(__dirname, 'dist');
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath));
+  app.get('/', (req, res) => res.sendFile(path.join(distPath, 'index.html')));
+  // fallback for SPA routes
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api/')) return next();
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
+
 app.listen(port, () => console.log(`Template API listening on http://localhost:${port}`));
