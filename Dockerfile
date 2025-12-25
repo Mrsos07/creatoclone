@@ -4,9 +4,12 @@
 FROM node:20-bullseye-slim AS builder
 WORKDIR /app
 
-# Install build-time dependencies (dev + prod)
+# Ensure system build tools are available for packages that require compilation
 COPY package.json package-lock.json ./
-RUN npm ci --silent
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends python3 build-essential ca-certificates wget gnupg dirmngr \
+	&& rm -rf /var/lib/apt/lists/* \
+	&& npm ci --silent
 
 # Copy sources and build static assets
 COPY . .
