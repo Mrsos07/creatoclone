@@ -3,6 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { renderTemplate } from './render.js';
+import multer from 'multer';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,6 +19,29 @@ app.use(express.static(path.join(__dirname, '..', 'dist')));
 const uploadsDir = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 app.use('/uploads', express.static(uploadsDir));
+
+// Multer upload config
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadsDir),
+  filename: (req, file, cb) => {
+    const safe = file.originalname.replace(/[^a-zA-Z0-9_.-]/g, '_');
+    cb(null, `${Date.now()}-${safe}`);
+  }
+});
+const upload = multer({ storage });
+
+// Upload endpoint: accepts multipart/form-data with field 'file' and returns public URL
+app.post('/api/upload', upload.single('file'), (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'no_file' });
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const url = `${baseUrl}/uploads/${req.file.filename}`;
+    return res.json({ url });
+  } catch (err) {
+    console.error('Upload error', err);
+    return res.status(500).json({ error: 'upload_failed' });
+  }
+});
 
 // Health
 app.get('/health', (req, res) => res.json({ status: 'ok' }));

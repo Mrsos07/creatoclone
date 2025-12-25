@@ -70,15 +70,18 @@ const ExportModal: React.FC<ExportModalProps> = ({ project, onClose }) => {
   };
 
   // Convert a blob: URL to data URL in browser
-  async function blobToDataURL(blobUrl: string) {
+  // Upload a blob: URL file to server via multipart/form-data; returns public URL
+  async function uploadBlob(blobUrl: string) {
     const resp = await fetch(blobUrl);
     const blob = await resp.blob();
-    return await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result));
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
+    const form = new FormData();
+    // try to derive filename from blobUrl or fallback
+    const filename = 'file-' + Date.now();
+    form.append('file', blob, filename);
+    const upl = await fetch('/api/upload', { method: 'POST', body: form });
+    if (!upl.ok) throw new Error('Upload failed');
+    const j = await upl.json();
+    return j.url;
   }
 
   const [exporting, setExporting] = React.useState(false);
