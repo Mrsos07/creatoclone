@@ -102,7 +102,55 @@ const ExportModal: React.FC<ExportModalProps> = ({ project, onClose }) => {
     setExporting(true);
     setExportResult(null);
     try {
-      const payload = JSON.parse(JSON.stringify(apiPayload));
+      // build payload from live project data to preserve File/Blob instances
+      const payload: any = {
+        template_info: {
+          template_id: project.id,
+          name: project.name,
+          canvas_size: { width: project.width, height: project.height },
+          total_duration: project.duration,
+          elevenlabs_api_key: project.elevenLabsApiKey || ''
+        },
+        modifications: {},
+        render_settings: apiPayload.render_settings
+      };
+
+      for (const layer of project.layers) {
+        const key = (layer.name || '').replace(/\s+/g, '_').toLowerCase();
+        payload.modifications[key] = {
+          id: layer.id,
+          original_name: layer.name,
+          type: layer.type,
+          content: layer.content,
+          script: layer.script || (layer.type === 'text' ? layer.content : ''),
+          voice_id: layer.voiceId || '',
+          transform: {
+            x: layer.x,
+            y: layer.y,
+            width: layer.width,
+            height: layer.height,
+            rotation: layer.rotation,
+            scale: 1
+          },
+          style: {
+            opacity: layer.opacity,
+            z_index: layer.zIndex,
+            ...(layer.type === 'text' && {
+              font_size: layer.fontSize,
+              font_weight: layer.fontWeight,
+              text_color: layer.color,
+              text_align: 'center'
+            }),
+            ...(layer.type === 'shape' && { fill_color: layer.fill }),
+            ...((layer.type === 'video' || layer.type === 'audio') && { volume: layer.volume })
+          },
+          timing: {
+            start_time: layer.start,
+            duration: layer.duration
+          }
+        };
+      }
+
       const mods = payload.modifications || {};
       for (const k of Object.keys(mods)) {
         const item = mods[k];
@@ -119,7 +167,7 @@ const ExportModal: React.FC<ExportModalProps> = ({ project, onClose }) => {
           }
           // If content is a File/Blob object (not string), upload directly
           if (typeof item.content === 'object' && item.content !== null) {
-            const maybeFile = item.content;
+            const maybeFile = item.content as any;
             const isFile = typeof File !== 'undefined' && maybeFile instanceof File;
             const isBlob = typeof Blob !== 'undefined' && maybeFile instanceof Blob;
             if (isFile || isBlob) {
