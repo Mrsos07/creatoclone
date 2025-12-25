@@ -2,24 +2,19 @@
 FROM node:18-alpine AS build
 WORKDIR /app
 
-# Install dependencies (use package-lock.json if present)
+# Install dependencies and build
 COPY package*.json ./
 RUN if [ -f package-lock.json ]; then npm ci --silent; else npm install --silent; fi
-
-# Copy source and build
 COPY . .
 RUN npm run build
 
-# Production image
-FROM nginx:stable-alpine
-
-# Install envsubst for runtime substitution of $PORT
-RUN apk add --no-cache gettext
-
-COPY --from=build /app/dist /usr/share/nginx/html
-
-# Copy nginx template and substitute $PORT at container start
-COPY nginx.conf.template /etc/nginx/conf.d/default.conf.template
-
-EXPOSE 80
-CMD ["sh", "-c", "PORT=${PORT:-80}; envsubst '$$PORT' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"]
+# Production image: run a Node server that serves static files and API
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --production --silent
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/server ./server
+EXPOSE 3000
+ENV NODE_ENV=production
+CMD [ "node", "server/index.js" ]
