@@ -12,7 +12,8 @@ RUN npm run build
 FROM node:18-alpine
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --production --silent
+# Copy node_modules from build stage to avoid running npm ci here (which fails when lockfile missing)
+COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/server ./server
 EXPOSE 3000
