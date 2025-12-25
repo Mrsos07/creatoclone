@@ -154,6 +154,7 @@ async function processNextTask() {
       // perform TTS generation as in /api/render
       const payload = task.payload;
       const elevenApiKey = process.env.ELEVENLABS_API_KEY || payload?.template_info?.elevenlabs_api_key;
+      const requestBase = payload?.__request_base_url || process.env.BASE_URL || (`http://localhost:${process.env.PORT || 3000}`);
       const generatedAudio = [];
       const mods = payload.modifications || {};
       for (const k of Object.keys(mods)) {
@@ -175,8 +176,7 @@ async function processNextTask() {
             const filename = `${item.id || k}.mp3`;
             const outPath = path.join(uploadsDir, filename);
             await fs.promises.writeFile(outPath, buffer);
-            const baseUrl = `${process.env.BASE_URL || 'http://localhost:' + (process.env.PORT || 3000)}`;
-            const publicUrl = `${baseUrl}/uploads/${filename}`;
+            const publicUrl = `${requestBase}/uploads/${filename}`;
             item.content = publicUrl;
             generatedAudio.push({ id: item.id, url: publicUrl });
           } catch (err) { console.error('TTS error', err); }
@@ -193,8 +193,7 @@ async function processNextTask() {
         await saveRenderTask(task);
         continue;
       }
-      const baseUrl = `${process.env.BASE_URL || 'http://localhost:' + (process.env.PORT || 3000)}`;
-      const mp4 = await renderTemplate(payload, baseUrl);
+      const mp4 = await renderTemplate(payload, requestBase);
       task.status = 'done'; task.mp4_url = mp4; task.generatedAudio = generatedAudio; task.completed_at = Date.now();
       await saveRenderTask(task);
       // callback
