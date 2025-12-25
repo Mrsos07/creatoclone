@@ -114,6 +114,9 @@ app.post('/api/templates/:id/render', async (req, res) => {
     try { tpl = await loadTemplate(templateId); } catch (e) { return res.status(404).json({ error: 'template_not_found' }); }
     // allow overriding modifications via body
     const payload = Object.assign({}, tpl, req.body || {});
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    // embed request base url so worker can build public URLs
+    payload.__request_base_url = baseUrl;
     const taskId = generateId('r_');
     const task = { id: taskId, status: 'queued', created_at: Date.now(), template_id: templateId, payload };
     await saveRenderTask(task);
