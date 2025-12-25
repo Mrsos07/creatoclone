@@ -18,8 +18,8 @@ WORKDIR /app
 # copy production package manifest and install production deps only
 COPY package.json package-lock.json ./
 
-# Copy node_modules from builder to ensure production deps are present
-COPY --from=builder /app/node_modules ./node_modules
+# Install production dependencies in the runner image to guarantee availability
+RUN npm ci --omit=dev
 
 # copy built assets and server
 COPY --from=builder /app/dist ./dist
