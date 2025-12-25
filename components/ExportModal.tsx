@@ -194,7 +194,14 @@ const ExportModal: React.FC<ExportModalProps> = ({ project, onClose }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      const json = await res.json();
+      const text = await res.text();
+      let json: any = null;
+      try {
+        json = JSON.parse(text);
+      } catch (e) {
+        // Non-JSON response (HTML error page etc.)
+        throw new Error(`Non-JSON response: ${text.substring(0, 1000)}`);
+      }
       if (res.ok) {
         setExportResult(json.mp4_url || JSON.stringify(json));
       } else {
