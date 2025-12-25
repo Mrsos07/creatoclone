@@ -1,6 +1,9 @@
 # Multi-stage Dockerfile for building Vite React app and serving with nginx
-FROM node:18-alpine AS build
+FROM node:18-bullseye AS build
 WORKDIR /app
+
+# Install build tools (some dependencies may require compilation)
+RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 
 # Install dependencies and build
 COPY package*.json ./
@@ -9,12 +12,12 @@ COPY . .
 RUN npm run build
 
 # Production image: run a Node server that serves static files and API
-FROM node:18-alpine
+FROM node:18-bullseye
 WORKDIR /app
 COPY package*.json ./
 # install ffmpeg runtime and necessary tools
-RUN apk add --no-cache ffmpeg ca-certificates
-# Copy node_modules from build stage to avoid running npm ci here (which fails when lockfile missing)
+RUN apt-get update && apt-get install -y ffmpeg ca-certificates && rm -rf /var/lib/apt/lists/*
+# Copy node_modules and built assets from build stage
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/server ./server
