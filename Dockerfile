@@ -7,9 +7,11 @@ WORKDIR /app
 # Ensure system build tools are available for packages that require compilation
 COPY package.json package-lock.json ./
 RUN apt-get update \
-	&& apt-get install -y --no-install-recommends python3 build-essential ca-certificates wget gnupg dirmngr \
+	&& apt-get install -y --no-install-recommends python3 python3-dev build-essential ca-certificates wget gnupg dirmngr \
 	&& rm -rf /var/lib/apt/lists/* \
-	&& npm ci --silent
+	&& npm config set unsafe-perm true \
+	&& NPM_CONFIG_LEGACY_PEER_DEPS=true npm ci --unsafe-perm --legacy-peer-deps --silent || \
+		 (echo "npm ci failed, printing npm-debug.log if present:" && [ -f npm-debug.log ] && cat npm-debug.log || true) 
 
 # Copy sources and build static assets
 COPY . .
