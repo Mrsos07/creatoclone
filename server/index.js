@@ -86,11 +86,45 @@ app.post('/api/render', async (req, res) => {
       const baseUrl = `${req.protocol}://${req.get('host')}`;
       const mp4Url = await renderTemplate(payload, baseUrl);
       // respond with done and mp4 url
-      return res.status(200).json({ status: 'done', mp4_url: mp4Url, generatedAudio });
+      const result = { status: 'done', mp4_url: mp4Url, generatedAudio };
+
+      // If callback_url provided, POST the result to it (non-blocking)
+      const callbackUrl = payload?.render_settings?.callback_url;
+      if (callbackUrl) {
+        (async () => {
+          try {
+            await fetch(callbackUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(result),
+            });
+            console.log('Callback posted to', callbackUrl);
+          } catch (cbErr) {
+            console.error('Callback POST failed:', cbErr);
+          }
+        })();
+      }
+
+      return res.status(200).json(result);
     } catch (err) {
       console.error('Render error:', err);
-      // fallback: return accepted with generatedAudio
-      return res.status(202).json({ status: 'accepted', generatedAudio, error: err.message });
+      const fallback = { status: 'accepted', generatedAudio, error: err.message };
+      const callbackUrl = payload?.render_settings?.callback_url;
+      if (callbackUrl) {
+        (async () => {
+          try {
+            await fetch(callbackUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ status: 'error', error: err.message }),
+            });
+            console.log('Error callback posted to', callbackUrl);
+          } catch (cbErr) {
+            console.error('Error callback POST failed:', cbErr);
+          }
+        })();
+      }
+      return res.status(202).json(fallback);
     }
   } catch (err) {
     console.error('Error in /api/render:', err);
