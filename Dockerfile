@@ -12,10 +12,14 @@ RUN npm run build
 
 # Production image
 FROM nginx:stable-alpine
+
+# Install envsubst for runtime substitution of $PORT
+RUN apk add --no-cache gettext
+
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Use provided nginx.conf if present
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx template and substitute $PORT at container start
+COPY nginx.conf.template /etc/nginx/conf.d/default.conf.template
 
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["sh", "-c", "envsubst '$$PORT' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"]
