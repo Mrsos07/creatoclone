@@ -228,124 +228,39 @@ workerLoop().catch(e => console.error(e));
 // Health
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
-// /api/render handler: generate ElevenLabs TTS server-side when audio scripts present
+// /api/render: save template and enqueue render task (preferred API for clients)
 app.post('/api/render', async (req, res) => {
   try {
     const payload = req.body;
-    console.log('/api/render received payload');
+    console.log('/api/render received payload — saving template and enqueueing render');
 
-    // Prefer environment variable for ElevenLabs API key; fall back to template value if provided
-    const elevenApiKey = process.env.ELEVENLABS_API_KEY || payload?.template_info?.elevenlabs_api_key;
-    if (!elevenApiKey) console.warn('ElevenLabs API key not found in environment or payload.template_info');
-
-    // For each audio modification with a `script` and `voice_id`, generate TTS via ElevenLabs
-    const generatedAudio = [];
-    const mods = payload.modifications || {};
-    for (const k of Object.keys(mods)) {
-      const item = mods[k];
-      if (item && item.type === 'audio' && item.script && item.voice_id) {
-        if (!elevenApiKey) {
-          console.warn(`Skipping TTS for ${item.id || k}: no ElevenLabs key`);
-          continue;
-        }
-        try {
-          const ttsRes = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${item.voice_id}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'xi-api-key': elevenApiKey,
-            },
-            body: JSON.stringify({
-              text: item.script,
-              model_id: 'eleven_multilingual_v2',
-              voice_settings: { stability: 0.5, similarity_boost: 0.75 }
-            })
-          });
-
-          if (!ttsRes.ok) {
-            const txt = await ttsRes.text().catch(() => '');
-            console.error('ElevenLabs TTS error', ttsRes.status, txt);
-            continue;
-          }
-
-          const arrayBuffer = await ttsRes.arrayBuffer();
-          const buffer = Buffer.from(arrayBuffer);
-          const filename = `${item.id || k}.mp3`;
-          const outPath = path.join(uploadsDir, filename);
-          await fs.promises.writeFile(outPath, buffer);
-
-          // Expose public URL for the generated audio
-          const baseUrl = `${req.protocol}://${req.get('host')}`;
-          const publicUrl = `${baseUrl}/uploads/${filename}`;
-
-          // Replace content in payload so renderer can fetch it
-          item.content = publicUrl;
-          generatedAudio.push({ id: item.id, url: publicUrl });
-        } catch (err) {
-          console.error('Error generating TTS for', item.id || k, err);
-        }
-      }
+    // basic check for blob: URLs — remind client to upload
+    const offending = [];
+    for (const k of Object.keys((payload.modifications || {}))) {
+      const it = payload.modifications[k];
+      if (!it) continue;
+      const c = it.content;
+      if (typeof c === 'string' && c.startsWith('blob:')) offending.push(k);
+    }
+    if (offending.length > 0) {
+      const msg = 'Payload contains browser-local blob: URLs for modifications: ' + offending.join(', ');
+      console.error(msg);
+      return res.status(400).json({ error: msg, suggestion: 'Upload files to /api/upload or convert blobs to data: URLs in the client before calling /api/render.' });
     }
 
-    // After generating audio URLs (if any), call renderer to produce final mp4
-    try {
-      // Validate no browser-local blob: URLs remain in payload (server cannot fetch them)
-      const offending = [];
-      for (const k of Object.keys(payload.modifications || {})) {
-        const it = payload.modifications[k];
-        if (!it) continue;
-        const c = it.content;
-        if (typeof c === 'string' && c.startsWith('blob:')) offending.push(k);
-      }
-      if (offending.length > 0) {
-        const msg = 'Payload contains browser-local blob: URLs for modifications: ' + offending.join(', ');
-        console.error(msg);
-        return res.status(400).json({ error: msg, suggestion: 'Upload files to /api/upload or convert blobs to data: URLs in the client before calling /api/render.' });
-      }
+    // Save template
+    const template = payload;
+    const templateId = await saveTemplate({ template_id: payload.template_info?.template_id || undefined, ...template });
 
-      const baseUrl = `${req.protocol}://${req.get('host')}`;
-      const mp4Url = await renderTemplate(payload, baseUrl);
-      // respond with done and mp4 url
-      const result = { status: 'done', mp4_url: mp4Url, generatedAudio };
+    // create render task
+    const taskId = generateId('r_');
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    // embed base URL so worker can build public URLs
+    template.__request_base_url = baseUrl;
+    const task = { id: taskId, status: 'queued', created_at: Date.now(), template_id: templateId, payload: template };
+    await saveRenderTask(task);
 
-      // If callback_url provided, POST the result to it (non-blocking)
-      const callbackUrl = payload?.render_settings?.callback_url;
-      if (callbackUrl) {
-        (async () => {
-          try {
-            await fetch(callbackUrl, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(result),
-            });
-            console.log('Callback posted to', callbackUrl);
-          } catch (cbErr) {
-            console.error('Callback POST failed:', cbErr);
-          }
-        })();
-      }
-
-      return res.status(200).json(result);
-    } catch (err) {
-      console.error('Render error:', err);
-      const fallback = { status: 'accepted', generatedAudio, error: err.message };
-      const callbackUrl = payload?.render_settings?.callback_url;
-      if (callbackUrl) {
-        (async () => {
-          try {
-            await fetch(callbackUrl, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ status: 'error', error: err.message }),
-            });
-            console.log('Error callback posted to', callbackUrl);
-          } catch (cbErr) {
-            console.error('Error callback POST failed:', cbErr);
-          }
-        })();
-      }
-      return res.status(202).json(fallback);
-    }
+    return res.status(202).json({ status: 'queued', task_id: taskId, template_id: templateId });
   } catch (err) {
     console.error('Error in /api/render:', err);
     return res.status(500).json({ error: 'internal_server_error' });
