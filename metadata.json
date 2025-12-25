@@ -1,0 +1,8 @@
+{
+  "name": "CreatoClone AI",
+  "description": "A high-performance video automation and editing platform inspired by Creatomate, featuring a timeline editor, AI video generation with Veo, and dynamic template management.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
