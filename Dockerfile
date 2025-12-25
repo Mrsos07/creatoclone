@@ -5,25 +5,27 @@ WORKDIR /app
 
 # copy package manifests first for better layer caching
 COPY package.json package-lock.json ./
+
+# install all deps (dev+prod) for building
 RUN npm ci
 
 # copy rest of the source and build
 COPY . .
 RUN npm run build
 
-# Runner: lightweight Node image serving the built `dist` folder using `serve`
+# remove dev dependencies, keep only production deps in node_modules
+RUN npm prune --production
+
+# Runner: lightweight Node image serving the built `dist` folder and API
 FROM node:20-alpine AS runner
 WORKDIR /app
 
-# copy production package manifest and install production deps only
-COPY package.json package-lock.json ./
-
-# Install production dependencies in the runner image to guarantee availability
-RUN npm ci --omit=dev
+# copy production node_modules from builder to runner
+COPY --from=builder /app/node_modules ./node_modules
 
 # copy built assets and server
 COPY --from=builder /app/dist ./dist
-COPY server.js ./server.js
+COPY --from=builder /app/server.js ./server.js
 
 # default port used by Render is the environment variable PORT
 ENV PORT=10000
