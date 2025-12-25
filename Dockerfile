@@ -1,35 +1,37 @@
-# Multi-stage build for a Vite + React app
-# Builder: install deps and build static assets
-FROM node:20-alpine AS builder
+# Robust multi-stage Dockerfile for Vite + React + Node API
+# Uses Debian-based Node image to avoid native/alpine runtime issues
+
+FROM node:20-bullseye-slim AS builder
 WORKDIR /app
 
-# copy package manifests first for better layer caching
+# Install build-time dependencies (dev + prod)
 COPY package.json package-lock.json ./
+RUN npm ci --silent
 
-# install all deps (dev+prod) for building
-RUN npm ci
-
-# copy rest of the source and build
+# Copy sources and build static assets
 COPY . .
 RUN npm run build
 
-# remove dev dependencies, keep only production deps in node_modules
+# Prune dev deps to keep node_modules small (optional)
 RUN npm prune --production
 
-# Runner: lightweight Node image serving the built `dist` folder and API
-FROM node:20-alpine AS runner
+FROM node:20-bullseye-slim AS runner
 WORKDIR /app
 
-# copy production node_modules from builder to runner
+# Set runtime env
+ENV NODE_ENV=production
+
+# Copy only production deps from builder (pruned node_modules)
 COPY --from=builder /app/node_modules ./node_modules
 
-# copy built assets and server
+# Copy built assets and server entrypoint
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/server.js ./server.js
+COPY package.json ./package.json
 
-# default port used by Render is the environment variable PORT
+# Expose port (Render provides PORT env automatically)
 ENV PORT=10000
 EXPOSE 10000
 
-# Run the Node server which serves API endpoints and static frontend
+# Start the single Node process that serves API + static frontend
 CMD ["node", "server.js"]
