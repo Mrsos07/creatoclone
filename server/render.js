@@ -10,6 +10,22 @@ const uploadsDir = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
 async function downloadToFile(url, filename) {
+  // Support data: URLs (base64) directly — useful when client sends file as data URL
+  if (typeof url === 'string' && url.startsWith('data:')) {
+    const match = url.match(/^data:([^;]+);base64,(.*)$/);
+    if (!match) throw new Error('Invalid data URL');
+    const base64 = match[2];
+    const dest = path.join(uploadsDir, filename);
+    const buffer = Buffer.from(base64, 'base64');
+    await fs.promises.writeFile(dest, buffer);
+    return dest;
+  }
+
+  // blob: URLs are browser-local and cannot be fetched from the server. Provide a clear error
+  if (typeof url === 'string' && url.startsWith('blob:')) {
+    throw new Error('Received blob: URL. The server cannot fetch browser-local blob URLs. Send a public URL, a data: (base64) URL, or upload the file to the server first.');
+  }
+
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to download ${url}: ${res.status}`);
   const dest = path.join(uploadsDir, filename);

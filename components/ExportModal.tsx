@@ -69,6 +69,57 @@ const ExportModal: React.FC<ExportModalProps> = ({ project, onClose }) => {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // Convert a blob: URL to data URL in browser
+  async function blobToDataURL(blobUrl: string) {
+    const resp = await fetch(blobUrl);
+    const blob = await resp.blob();
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  const [exporting, setExporting] = React.useState(false);
+  const [exportResult, setExportResult] = React.useState<string | null>(null);
+
+  // Export via server /api/render. Converts any blob: content to data: URLs first.
+  const handleExport = async () => {
+    setExporting(true);
+    setExportResult(null);
+    try {
+      const payload = JSON.parse(JSON.stringify(apiPayload));
+      const mods = payload.modifications || {};
+      for (const k of Object.keys(mods)) {
+        const item = mods[k];
+        if (item && typeof item.content === 'string' && item.content.startsWith('blob:')) {
+          try {
+            item.content = await blobToDataURL(item.content);
+          } catch (err) {
+            console.error('Failed convert blob to data URL', err);
+          }
+        }
+      }
+
+      const res = await fetch('/api/render', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        setExportResult(json.mp4_url || JSON.stringify(json));
+      } else {
+        setExportResult(`Error: ${json.error || JSON.stringify(json)}`);
+      }
+    } catch (err: any) {
+      setExportResult('Export failed: ' + (err?.message || String(err)));
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-300">
       <div className="bg-zinc-950 border border-zinc-800 w-full max-w-4xl rounded-3xl shadow-[0_0_100px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col max-h-[92vh]">
@@ -119,8 +170,20 @@ const ExportModal: React.FC<ExportModalProps> = ({ project, onClose }) => {
           </div>
         </div>
         <div className="p-6 bg-zinc-900/50 border-t border-zinc-800 flex justify-between items-center">
-          <div className="flex items-center gap-2 text-[10px] text-zinc-500 font-bold uppercase tracking-tighter"><Box size={14} />Version 2.6 • ElevenLabs Integration Optimized</div>
-          <button onClick={onClose} className="px-10 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl text-xs font-bold uppercase tracking-widest transition-all shadow-lg active:scale-95">Close Bridge</button>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-[10px] text-zinc-500 font-bold uppercase tracking-tighter"><Box size={14} />Version 2.6 • ElevenLabs Integration Optimized</div>
+            {exportResult && (
+              <div className="text-xs text-blue-400">
+                Result: {exportResult.startsWith('http') ? <a className="underline" href={exportResult} target="_blank" rel="noreferrer">Open video</a> : exportResult}
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            <button onClick={handleExport} disabled={exporting} className="px-6 py-3 bg-green-600 hover:bg-green-500 text-white rounded-xl text-xs font-bold uppercase tracking-widest transition-all shadow-lg active:scale-95">
+              {exporting ? 'Exporting...' : 'Export Video'}
+            </button>
+            <button onClick={onClose} className="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl text-xs font-bold uppercase tracking-widest transition-all shadow-lg active:scale-95">Close Bridge</button>
+          </div>
         </div>
       </div>
     </div>
