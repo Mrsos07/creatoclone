@@ -59,7 +59,7 @@ const ExportModal: React.FC<ExportModalProps> = ({ project, onClose }) => {
       format: "mp4",
       fps: 30,
       quality: "high",
-      callback_url: "https://your-n8n-webhook-url.com"
+      callback_url: "https://n8n.srv968786.hstgr.cloud/webhook/creatoclone"
     }
   };
 
@@ -156,10 +156,15 @@ const ExportModal: React.FC<ExportModalProps> = ({ project, onClose }) => {
                   <Terminal size={16} className="text-blue-500" />
                   <span className="text-xs font-bold uppercase tracking-widest text-zinc-400">Dynamic Template Payload</span>
                </div>
-               <button onClick={handleCopy} className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-all text-xs font-bold uppercase shadow-xl shadow-blue-600/20 group">
+               <div className="flex items-center gap-3">
+                <button onClick={handleCopy} className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-all text-xs font-bold uppercase shadow-xl shadow-blue-600/20 group">
                   {copied ? <Check size={14} /> : <Copy size={14} className="group-hover:scale-110 transition-transform" />}
                   {copied ? 'Payload Copied' : 'Copy Full Template API'}
                 </button>
+                <button onClick={handleExport} disabled={exporting} className="flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-500 text-white rounded-xl transition-all text-xs font-bold uppercase shadow-xl shadow-green-600/20">
+                  {exporting ? 'Exporting...' : 'Export Video'}
+                </button>
+               </div>
             </div>
             <div className="relative group">
               <div className="absolute inset-0 bg-blue-500/5 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
