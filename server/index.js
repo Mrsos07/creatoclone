@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { renderTemplate } from './render.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -80,10 +81,17 @@ app.post('/api/render', async (req, res) => {
       }
     }
 
-    // TODO: enqueue render job / process payload further as needed
-
-    // Respond with accepted and list generated audio URLs (if any)
-    return res.status(202).json({ status: 'accepted', generatedAudio });
+    // After generating audio URLs (if any), call renderer to produce final mp4
+    try {
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      const mp4Url = await renderTemplate(payload, baseUrl);
+      // respond with done and mp4 url
+      return res.status(200).json({ status: 'done', mp4_url: mp4Url, generatedAudio });
+    } catch (err) {
+      console.error('Render error:', err);
+      // fallback: return accepted with generatedAudio
+      return res.status(202).json({ status: 'accepted', generatedAudio, error: err.message });
+    }
   } catch (err) {
     console.error('Error in /api/render:', err);
     return res.status(500).json({ error: 'internal_server_error' });

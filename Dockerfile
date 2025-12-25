@@ -12,6 +12,8 @@ RUN npm run build
 FROM node:18-alpine
 WORKDIR /app
 COPY package*.json ./
+# install ffmpeg runtime and necessary tools
+RUN apk add --no-cache ffmpeg ca-certificates
 # Copy node_modules from build stage to avoid running npm ci here (which fails when lockfile missing)
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
