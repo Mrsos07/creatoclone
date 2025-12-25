@@ -84,6 +84,16 @@ const ExportModal: React.FC<ExportModalProps> = ({ project, onClose }) => {
     return j.url;
   }
 
+  async function uploadFileObject(file: any) {
+    const form = new FormData();
+    const name = (file && file.name) || ('file-' + Date.now());
+    form.append('file', file, name);
+    const upl = await fetch('/api/upload', { method: 'POST', body: form });
+    if (!upl.ok) throw new Error('Upload failed');
+    const j = await upl.json();
+    return j.url;
+  }
+
   const [exporting, setExporting] = React.useState(false);
   const [exportResult, setExportResult] = React.useState<string | null>(null);
 
@@ -96,12 +106,38 @@ const ExportModal: React.FC<ExportModalProps> = ({ project, onClose }) => {
       const mods = payload.modifications || {};
       for (const k of Object.keys(mods)) {
         const item = mods[k];
-        if (item && typeof item.content === 'string' && item.content.startsWith('blob:')) {
-          try {
-            item.content = await blobToDataURL(item.content);
-          } catch (err) {
-            console.error('Failed convert blob to data URL', err);
+        if (!item) continue;
+        try {
+          // string blob URL (browser-local)
+          if (typeof item.content === 'string' && item.content.startsWith('blob:')) {
+            item.content = await uploadBlob(item.content);
+            continue;
           }
+          // string data: URL – keep as-is
+          if (typeof item.content === 'string' && item.content.startsWith('data:')) {
+            continue;
+          }
+          // If content is a File/Blob object (not string), upload directly
+          if (typeof item.content === 'object' && item.content !== null) {
+            const maybeFile = item.content;
+            const isFile = typeof File !== 'undefined' && maybeFile instanceof File;
+            const isBlob = typeof Blob !== 'undefined' && maybeFile instanceof Blob;
+            if (isFile || isBlob) {
+              item.content = await uploadFileObject(maybeFile);
+              continue;
+            }
+            // nested object with url property
+            if (typeof maybeFile.url === 'string' && maybeFile.url.startsWith('blob:')) {
+              item.content = await uploadBlob(maybeFile.url);
+              continue;
+            }
+            if (typeof maybeFile.url === 'string') {
+              item.content = maybeFile.url;
+              continue;
+            }
+          }
+        } catch (err) {
+          console.error('Failed upload media for', k, err);
         }
       }
 
