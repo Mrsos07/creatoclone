@@ -189,24 +189,36 @@ const ExportModal: React.FC<ExportModalProps> = ({ project, onClose }) => {
         }
       }
 
-      const res = await fetch('/api/render', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+      // Save template to server
+      const saveRes = await fetch('/api/templates', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
       });
-      const text = await res.text();
-      let json: any = null;
-      try {
-        json = JSON.parse(text);
-      } catch (e) {
-        // Non-JSON response (HTML error page etc.)
-        throw new Error(`Non-JSON response: ${text.substring(0, 1000)}`);
+      if (!saveRes.ok) throw new Error('Failed to save template');
+      const saveJson = await saveRes.json();
+      const templateId = saveJson.template_id;
+
+      // Create render task
+      const createRes = await fetch(`/api/templates/${templateId}/render`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+      if (!createRes.ok) {
+        const t = await createRes.text(); throw new Error('Create render failed: ' + t);
       }
-      if (res.ok) {
-        setExportResult(json.mp4_url || JSON.stringify(json));
-      } else {
-        setExportResult(`Error: ${json.error || JSON.stringify(json)}`);
-      }
+      const createJson = await createRes.json();
+      const taskId = createJson.task_id;
+
+      // Poll task status
+      const poll = async () => {
+        const r = await fetch(`/api/renders/${taskId}`);
+        if (!r.ok) throw new Error('Failed to get render status');
+        const j = await r.json();
+        if (j.status === 'done') return j;
+        if (j.status === 'error') throw new Error(j.error || 'render_error');
+        // still queued/processing
+        await new Promise(rp => setTimeout(rp, 2000));
+        return poll();
+      };
+
+      const done = await poll();
+      setExportResult(done.mp4_url || JSON.stringify(done));
     } catch (err: any) {
       setExportResult('Export failed: ' + (err?.message || String(err)));
     } finally {
