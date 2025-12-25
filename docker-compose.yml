@@ -1,0 +1,7 @@
+services:
+  creatoclone-app:
+    build: .
+    container_name: creatoclone_ai
+    ports:
+      - "8080:80"
+    restart: always

@@ -1,20 +1,42 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# CreatoClone AI - Video Automation Platform
 
-# Run and deploy your AI Studio app
+مشروع متطور لأتمتة صناعة الفيديو باستخدام تقنيات Google Gemini و Veo و ElevenLabs.
 
-This contains everything you need to run your app locally.
+## تعليمات الرفع على GitHub
 
-View your app in AI Studio: https://ai.studio/apps/drive/1FBPPfXziTq9YpzlMsNk4sImnorIaFnrN
+لرفع المشروع على مستودعك الخاص `https://github.com/Mrsos07/creatoclone.git` كرر الخطوات التالية في الـ Terminal الخاص بك:
 
-## Run Locally
+```bash
+# 1. تهيئة المستودع المحلي
+git init
 
-**Prerequisites:**  Node.js
+# 2. إضافة كافة الملفات
+git add .
 
+# 3. تسجيل التغييرات
+git commit -m "Initial commit: AI Video Editor with Docker support"
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+# 4. ربط المستودع المحلي بالبعيد
+git remote add origin https://github.com/Mrsos07/creatoclone.git
+
+# 5. رفع الملفات (تأكد من تغيير اسم الفرع إذا لزم الأمر)
+git branch -M main
+git push -u origin main
+```
+
+## التشغيل باستخدام Docker
+
+يمكنك تشغيل المشروع محلياً أو على السيرفر باستخدام Docker:
+
+```bash
+# بناء وتشغيل الحاوية
+docker-compose up -d --build
+```
+
+سيصبح المشروع متاحاً على الرابط: `http://localhost:8080`
+
+## التقنيات المستخدمة
+- **Frontend:** React + Tailwind CSS + Lucide Icons
+- **AI Models:** Google Gemini 3 Pro (Reasoning), Veo 3.1 (Video Gen)
+- **Audio:** ElevenLabs API (Arabic Voice Synthesis)
+- **Deployment:** Docker + Nginx

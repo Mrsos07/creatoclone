@@ -12,35 +12,46 @@ import { Project, Layer, EditorState, LayerType } from './types';
 import { DEFAULT_PROJECT_WIDTH, DEFAULT_PROJECT_HEIGHT, DEFAULT_PROJECT_DURATION } from './constants';
 import { GeminiService } from './services/geminiService';
 
+// Removed conflicting window.aistudio declaration as it is already defined as 'AIStudio' in the environment.
+
 const App: React.FC = () => {
-  const [project, setProject] = useState<Project>({
-    id: 'p1',
-    name: 'Automation Smart Template',
-    width: DEFAULT_PROJECT_WIDTH,
-    height: DEFAULT_PROJECT_HEIGHT,
-    duration: DEFAULT_PROJECT_DURATION,
-    elevenLabsApiKey: localStorage.getItem('elevenlabs_key') || '',
-    layers: [
-      {
-        id: 'l1',
-        type: 'text',
-        name: 'Main Headline',
-        x: 140,
-        y: 800,
-        width: 800,
-        height: 200,
-        opacity: 1,
-        rotation: 0,
-        content: 'AI REVOLUTION',
-        start: 0,
-        duration: 10,
-        fontSize: 120,
-        fontWeight: '900',
-        color: '#ffffff',
-        zIndex: 10,
-        volume: 1
-      }
-    ],
+  const [savedProjects, setSavedProjects] = useState<Project[]>([]);
+  
+  const [project, setProject] = useState<Project>(() => {
+    const lastProject = localStorage.getItem('last_active_project');
+    if (lastProject) {
+      try { return JSON.parse(lastProject); } catch (e) { console.error(e); }
+    }
+    return {
+      id: 'p-' + Math.random().toString(36).substr(2, 9),
+      name: 'Smart Automation Template',
+      width: DEFAULT_PROJECT_WIDTH,
+      height: DEFAULT_PROJECT_HEIGHT,
+      duration: DEFAULT_PROJECT_DURATION,
+      elevenLabsApiKey: localStorage.getItem('elevenlabs_key') || '',
+      layers: [
+        {
+          id: 'l1',
+          type: 'text',
+          name: 'Main Headline',
+          x: 140,
+          y: 800,
+          width: 800,
+          height: 200,
+          opacity: 1,
+          rotation: 0,
+          content: 'AI REVOLUTION',
+          start: 0,
+          duration: 10,
+          fontSize: 120,
+          fontWeight: '900',
+          color: '#ffffff',
+          zIndex: 10,
+          volume: 1
+        }
+      ],
+      updatedAt: Date.now()
+    };
   });
 
   const [editorState, setEditorState] = useState<EditorState>({
@@ -59,6 +70,52 @@ const App: React.FC = () => {
   const requestRef = useRef<number>();
   const lastTimeRef = useRef<number>();
   const audioRefs = useRef<Map<string, HTMLAudioElement>>(new Map());
+
+  // تحميل المشاريع المحفوظة عند البدء
+  useEffect(() => {
+    const stored = localStorage.getItem('saved_templates');
+    if (stored) {
+      try {
+        setSavedProjects(JSON.parse(stored));
+      } catch (e) {
+        console.error("Failed to load saved templates", e);
+      }
+    }
+  }, []);
+
+  // حفظ المشروع الحالي تلقائياً كـ "آخر مشروع نشط"
+  useEffect(() => {
+    localStorage.setItem('last_active_project', JSON.stringify(project));
+  }, [project]);
+
+  const handleSaveProject = useCallback((targetProject: Project = project) => {
+    const updatedProject = { ...targetProject, updatedAt: Date.now() };
+    setSavedProjects(prev => {
+      const exists = prev.find(p => p.id === updatedProject.id);
+      let newList;
+      if (exists) {
+        newList = prev.map(p => p.id === updatedProject.id ? updatedProject : p);
+      } else {
+        newList = [updatedProject, ...prev];
+      }
+      localStorage.setItem('saved_templates', JSON.stringify(newList));
+      return newList;
+    });
+    setProject(updatedProject);
+  }, [project]);
+
+  const handleLoadProject = (p: Project) => {
+    setProject(p);
+    setEditorState(prev => ({ ...prev, selectedLayerId: null, currentTime: 0 }));
+  };
+
+  const handleDeleteProject = (id: string) => {
+    setSavedProjects(prev => {
+      const newList = prev.filter(p => p.id !== id);
+      localStorage.setItem('saved_templates', JSON.stringify(newList));
+      return newList;
+    });
+  };
 
   const animate = useCallback((time: number) => {
     if (lastTimeRef.current !== undefined) {
@@ -214,12 +271,20 @@ const App: React.FC = () => {
   const handleGenerateAI = async (prompt: string) => {
     try {
       setIsGenerating(true);
-      if (window.aistudio && !(await window.aistudio.hasSelectedApiKey())) {
-        await window.aistudio.openSelectKey();
+      // Fixed: Casting to any to avoid conflicting definitions of aistudio in Window.
+      const aistudio = (window as any).aistudio;
+      if (aistudio && !(await aistudio.hasSelectedApiKey())) {
+        await aistudio.openSelectKey();
       }
       const videoUrl = await GeminiService.generateVideo(prompt, '9:16');
       handleAddLayer('video', videoUrl);
     } catch (err: any) {
+      const aistudio = (window as any).aistudio;
+      // If the request fails with an error message containing "Requested entity was not found.", 
+      // reset the key selection state and prompt the user to select a key again via openSelectKey().
+      if (err.message?.includes("Requested entity was not found")) {
+        await aistudio?.openSelectKey();
+      }
       alert("AI Generation Error: " + err.message);
     } finally {
       setIsGenerating(false);
@@ -238,7 +303,7 @@ const App: React.FC = () => {
         onRender={() => alert("Ready for Render with API Bridge")}
         onShowApiModal={() => setShowApiModal(true)}
         projectName={project.name}
-        onOpenKeySelector={() => window.aistudio?.openSelectKey()}
+        onOpenKeySelector={() => (window as any).aistudio?.openSelectKey()}
       />
       
       <div className="flex-1 flex overflow-hidden relative">
@@ -246,6 +311,8 @@ const App: React.FC = () => {
           <Sidebar 
             layers={project.layers}
             projectApiKey={project.elevenLabsApiKey}
+            savedProjects={savedProjects}
+            currentProjectId={project.id}
             onAddLayer={handleAddLayer}
             onUpdateLayer={handleUpdateLayer}
             onDeleteLayer={handleDeleteLayer}
@@ -256,6 +323,9 @@ const App: React.FC = () => {
             collapsed={sidebarCollapsed}
             onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
             onUpdateProjectApiKey={(key) => setProject(p => ({ ...p, elevenLabsApiKey: key }))}
+            onSaveProject={handleSaveProject}
+            onLoadProject={handleLoadProject}
+            onDeleteProject={handleDeleteProject}
           />
         )}
         

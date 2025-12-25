@@ -32,6 +32,7 @@ export interface Project {
   duration: number; // total duration in seconds
   layers: Layer[];
   elevenLabsApiKey?: string; // مفتاح API المحفوظ في القالب
+  updatedAt?: number; // تاريخ آخر تعديل
 }
 
 export interface EditorState {

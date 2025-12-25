@@ -4,14 +4,16 @@ import {
   Type, Square, Image as ImageIcon, Video, Layers, Plus, 
   Wand2, Loader2, Sparkles, Mic, Volume2, Upload, 
   ChevronLeft, ChevronRight, Hash, AlertCircle, 
-  Eye, EyeOff, Trash2, GripVertical, Fingerprint
+  Eye, EyeOff, Trash2, GripVertical, Fingerprint, FolderOpen, Save, FileVideo, Clock
 } from 'lucide-react';
-import { LayerType, Layer } from '../types';
+import { LayerType, Layer, Project } from '../types';
 import { ElevenLabsService } from '../services/elevenLabsService';
 
 interface SidebarProps {
   layers: Layer[];
   projectApiKey?: string;
+  savedProjects: Project[];
+  currentProjectId: string;
   onAddLayer: (type: LayerType, content?: string, script?: string, voiceId?: string) => void;
   onUpdateLayer: (id: string, updates: Partial<Layer>) => void;
   onDeleteLayer: (id: string) => void;
@@ -22,6 +24,9 @@ interface SidebarProps {
   collapsed: boolean;
   onToggleCollapse: () => void;
   onUpdateProjectApiKey: (key: string) => void;
+  onSaveProject: (p?: Project) => void;
+  onLoadProject: (p: Project) => void;
+  onDeleteProject: (id: string) => void;
 }
 
 export const ARABIC_VOICES = [
@@ -34,6 +39,8 @@ export const ARABIC_VOICES = [
 const Sidebar: React.FC<SidebarProps> = ({ 
   layers, 
   projectApiKey,
+  savedProjects,
+  currentProjectId,
   onAddLayer, 
   onUpdateLayer, 
   onDeleteLayer, 
@@ -43,9 +50,12 @@ const Sidebar: React.FC<SidebarProps> = ({
   isGenerating, 
   collapsed, 
   onToggleCollapse,
-  onUpdateProjectApiKey
+  onUpdateProjectApiKey,
+  onSaveProject,
+  onLoadProject,
+  onDeleteProject
 }) => {
-  const [activeTab, setActiveTab] = useState<'assets' | 'layers' | 'ai' | 'voice'>('assets');
+  const [activeTab, setActiveTab] = useState<'assets' | 'layers' | 'ai' | 'voice' | 'templates'>('assets');
   const [aiPrompt, setAiPrompt] = useState('');
   const [ttsText, setTtsText] = useState('');
   const [selectedVoice, setSelectedVoice] = useState(ARABIC_VOICES[0].id);
@@ -57,6 +67,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const menuItems = [
     { id: 'assets', icon: Plus, label: 'Add' },
     { id: 'layers', icon: Layers, label: 'Layers' },
+    { id: 'templates', icon: FolderOpen, label: 'Templates' },
     { id: 'voice', icon: Mic, label: 'Voice' },
     { id: 'ai', icon: Wand2, label: 'AI Video' },
   ];
@@ -94,6 +105,12 @@ const Sidebar: React.FC<SidebarProps> = ({
       case 'text': return <Type size={14} className="text-yellow-400" />;
       default: return <Square size={14} className="text-zinc-400" />;
     }
+  };
+
+  const formatResolution = (w: number, h: number) => {
+    if (w === 1080 && h === 1920) return "9:16 Vertical";
+    if (w === 1920 && h === 1080) return "16:9 Landscape";
+    return `${w}x${h}`;
   };
 
   return (
@@ -139,6 +156,66 @@ const Sidebar: React.FC<SidebarProps> = ({
                    </button>
                 </div>
               </div>
+            )}
+
+            {activeTab === 'templates' && (
+               <div className="space-y-4">
+                  <button 
+                    onClick={() => onSaveProject()}
+                    className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-blue-600/20 flex items-center justify-center gap-2 transition-all active:scale-95 group"
+                  >
+                    <Save size={16} className="group-hover:scale-110 transition-transform" />
+                    Save Current Template
+                  </button>
+
+                  <div className="pt-4 border-t border-zinc-800/50 space-y-2">
+                    <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-3">Saved Projects</p>
+                    {savedProjects.length === 0 ? (
+                      <div className="py-12 flex flex-col items-center text-zinc-600">
+                         <FolderOpen size={32} className="opacity-20 mb-2" />
+                         <p className="text-[10px] font-bold uppercase tracking-tighter">No templates saved</p>
+                      </div>
+                    ) : (
+                      savedProjects.map((p) => (
+                        <div 
+                          key={p.id}
+                          className={`group p-4 rounded-2xl border transition-all cursor-pointer relative overflow-hidden ${
+                            currentProjectId === p.id 
+                            ? 'bg-blue-600/10 border-blue-500/50' 
+                            : 'bg-zinc-900/30 border-zinc-800 hover:border-zinc-700'
+                          }`}
+                          onClick={() => onLoadProject(p)}
+                        >
+                          <div className="flex items-center gap-3">
+                             <div className="w-10 h-10 rounded-xl bg-zinc-950 flex items-center justify-center border border-zinc-800 shrink-0">
+                                <FileVideo size={18} className={currentProjectId === p.id ? 'text-blue-400' : 'text-zinc-500'} />
+                             </div>
+                             <div className="flex-1 min-w-0">
+                                <p className={`text-[11px] font-black uppercase truncate tracking-tight ${currentProjectId === p.id ? 'text-blue-400' : 'text-zinc-200'}`}>{p.name}</p>
+                                <div className="flex items-center gap-2 mt-1">
+                                   <span className="text-[9px] text-zinc-600 font-bold">{formatResolution(p.width, p.height)}</span>
+                                   <span className="w-1 h-1 bg-zinc-800 rounded-full" />
+                                   <div className="flex items-center gap-1 text-[9px] text-zinc-600 font-bold">
+                                      <Clock size={10} />
+                                      {p.updatedAt ? new Date(p.updatedAt).toLocaleDateString() : 'Old'}
+                                   </div>
+                                </div>
+                             </div>
+                             <button 
+                               onClick={(e) => { e.stopPropagation(); onDeleteProject(p.id); }}
+                               className="p-2 text-zinc-700 hover:text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
+                             >
+                                <Trash2 size={14} />
+                             </button>
+                          </div>
+                          {currentProjectId === p.id && (
+                             <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500" />
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+               </div>
             )}
 
             {activeTab === 'layers' && (
