@@ -1,0 +1,270 @@
+{
+  "name": "CreatoClone Render Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "creatoclone-render",
+        "httpMethod": "POST",
+        "responseMode": "onReceived",
+        "responseData": "success",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://creatoclone1.onrender.com/api/upload",
+        "method": "POST",
+        "responseFormat": "json",
+        "jsonParameters": false,
+        "options": {
+          "binaryPropertyName": "new_video",
+          "sendBinaryData": true
+        }
+      },
+      "name": "Upload new_video",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [600, 100]
+    },
+    {
+      "parameters": {
+        "url": "https://creatoclone1.onrender.com/api/upload",
+        "method": "POST",
+        "responseFormat": "json",
+        "jsonParameters": false,
+        "options": {
+          "binaryPropertyName": "new_image",
+          "sendBinaryData": true
+        }
+      },
+      "name": "Upload new_image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [600, 220]
+    },
+    {
+      "parameters": {
+        "url": "https://creatoclone1.onrender.com/api/upload",
+        "method": "POST",
+        "responseFormat": "json",
+        "jsonParameters": false,
+        "options": {
+          "binaryPropertyName": "news_ai",
+          "sendBinaryData": true
+        }
+      },
+      "name": "Upload news_ai",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [600, 340]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Build payload using uploaded URLs and incoming template\nconst incoming = $json;\n// The Webhook node output is at $items(0).json if needed\nconst template = incoming.template ? (typeof incoming.template === 'string' ? JSON.parse(incoming.template) : incoming.template) : (incoming || {});\n\n// Collect upload results if present\nconst uploads = {};\nif ($node['Upload new_video'] && $node['Upload new_video'].json && $node['Upload new_video'].json.url) uploads['new_video'] = $node['Upload new_video'].json.url;\nif ($node['Upload new_image'] && $node['Upload new_image'].json && $node['Upload new_image'].json.url) uploads['new_image'] = $node['Upload new_image'].json.url;\nif ($node['Upload news_ai'] && $node['Upload news_ai'].json && $node['Upload news_ai'].json.url) uploads['news_ai'] = $node['Upload news_ai'].json.url;\n\n// Replace modifications content where upload exists\nconst mods = template.modifications || {};\nfor (const k of Object.keys(mods)) {\n  if (uploads[k]) mods[k].content = uploads[k];\n}\ntemplate.modifications = mods;\n\nreturn [{ json: template }];"
+      },
+      "name": "Build Payload",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [900, 220]
+    },
+    {
+      "parameters": {
+        "url": "https://creatoclone1.onrender.com/api/templates",
+        "method": "POST",
+        "responseFormat": "json",
+        "jsonParameters": true,
+        "options": {}
+      },
+      "name": "Save Template",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [1200, 220]
+    },
+    {
+      "parameters": {
+        "url": "=https://creatoclone1.onrender.com/api/templates/{{$node[\"Save Template\"].json[\"template_id\"]}}/render",
+        "method": "POST",
+        "responseFormat": "json",
+        "jsonParameters": false,
+        "options": {}
+      },
+      "name": "Create Render",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [1500, 220]
+    },
+    {
+      "parameters": {
+        "waitTime": 3000
+      },
+      "name": "Wait 3s",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [1800, 220]
+    },
+    {
+      "parameters": {
+        "url": "=https://creatoclone1.onrender.com/api/renders/{{$node[\"Create Render\"].json[\"task_id\"]}}",
+        "method": "GET",
+        "responseFormat": "json",
+        "options": {}
+      },
+      "name": "Check Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [2100, 220]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [],
+          "number": [],
+          "string": [
+            {
+              "value1": "={{$json[\"status\"]}}",
+              "operation": "is",
+              "value2": "done"
+            }
+          ]
+        }
+      },
+      "name": "Is Done?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [2400, 220]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Upload new_video",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upload new_image",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upload news_ai",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload new_video": {
+      "main": [
+        [
+          {
+            "node": "Build Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload new_image": {
+      "main": [
+        [
+          {
+            "node": "Build Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload news_ai": {
+      "main": [
+        [
+          {
+            "node": "Build Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Payload": {
+      "main": [
+        [
+          {
+            "node": "Save Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Template": {
+      "main": [
+        [
+          {
+            "node": "Create Render",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Render": {
+      "main": [
+        [
+          {
+            "node": "Wait 3s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 3s": {
+      "main": [
+        [
+          {
+            "node": "Check Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Status": {
+      "main": [
+        [
+          {
+            "node": "Is Done?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Done?": {
+      "main": [
+        [
+          {
+            "node": "Set",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 3s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
