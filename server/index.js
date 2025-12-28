@@ -55,7 +55,57 @@ function generateId(prefix = '') {
 }
 
 async function saveTemplate(template) {
+  // template may contain remote asset URLs or data: URLs — download and store copies in uploadsDir
   const id = template.template_id || generateId('tpl_');
+  const baseUrl = template.__request_base_url || (process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`);
+  const mods = template.modifications || {};
+  for (const k of Object.keys(mods)) {
+    const it = mods[k];
+    if (!it || !it.content) continue;
+    try {
+      const c = it.content;
+      // data: URL
+      if (typeof c === 'string' && c.startsWith('data:')) {
+        const m = c.match(/^data:([^;]+);base64,(.*)$/);
+        if (!m) continue;
+        const mime = m[1];
+        const b64 = m[2];
+        const ext = (mime === 'image/jpeg' && '.jpg') || (mime === 'image/png' && '.png') || (mime === 'image/webp' && '.webp') || (mime.startsWith('audio/') && '.mp3') || (mime.startsWith('video/') && '.mp4') || '.bin';
+        const filename = `${Date.now()}-${k}${ext}`;
+        const dest = path.join(uploadsDir, filename);
+        await fs.promises.writeFile(dest, Buffer.from(b64, 'base64'));
+        it.content = `${baseUrl}/uploads/${filename}`;
+        continue;
+      }
+
+      // http(s) URL -> download and save locally
+      if (typeof c === 'string' && (c.startsWith('http://') || c.startsWith('https://'))) {
+        // fetch and save
+        try {
+          const res = await fetch(c);
+          if (!res.ok) { console.warn('Failed download asset', c, res.status); continue; }
+          const arrayBuffer = await res.arrayBuffer();
+          const buffer = Buffer.from(arrayBuffer);
+          // try to determine extension
+          const urlExt = path.extname((new URL(c)).pathname) || '';
+          let ext = urlExt;
+          if (!ext) {
+            const ct = res.headers.get('content-type') || '';
+            if (ct.includes('jpeg')) ext = '.jpg'; else if (ct.includes('png')) ext = '.png'; else if (ct.includes('webp')) ext = '.webp'; else if (ct.includes('mp4')) ext = '.mp4'; else if (ct.includes('mpeg') || ct.includes('mp3')) ext = '.mp3'; else ext = '.bin';
+          }
+          const filename = `${Date.now()}-${k}${ext}`;
+          const dest = path.join(uploadsDir, filename);
+          await fs.promises.writeFile(dest, buffer);
+          it.content = `${baseUrl}/uploads/${filename}`;
+        } catch (err) {
+          console.error('Error downloading asset for template', c, err);
+        }
+      }
+    } catch (err) {
+      console.error('saveTemplate asset handling error for', k, err);
+    }
+  }
+
   const file = path.join(templatesDir, `${id}.json`);
   await fs.promises.writeFile(file, JSON.stringify({ id, template }, null, 2));
   return id;
