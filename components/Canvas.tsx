@@ -212,6 +212,7 @@ const Canvas: React.FC<CanvasProps> = ({
               color: layer.color || '#fff', 
               fontSize: `${(layer.fontSize || 32) * zoom}px`, 
               fontWeight: layer.fontWeight || 'bold', 
+              fontFamily: layer.fontFamily || 'inherit',
               textAlign: 'center',
               width: '100%',
               height: '100%',
@@ -220,10 +221,11 @@ const Canvas: React.FC<CanvasProps> = ({
               justifyContent: 'center',
               lineHeight: 1.2,
               wordBreak: 'break-word',
-              padding: '10px'
+              padding: '10px',
+              direction: 'auto'
             }}
           >
-            {layer.content}
+            { (layer as any).script || layer.content }
           </div>
         );
         break;

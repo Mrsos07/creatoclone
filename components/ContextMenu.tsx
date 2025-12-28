@@ -10,6 +10,7 @@ interface ContextMenuProps {
   onDuplicate: () => void;
   onBringToFront: () => void;
   onSendToBack: () => void;
+  onAssignToComponent?: (groupId: string) => void;
 }
 
 const ContextMenu: React.FC<ContextMenuProps> = ({
@@ -61,6 +62,19 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
         Send to Back
       </button>
       <div className="h-px bg-zinc-800 my-1" />
+      <button
+        onClick={() => {
+          const gid = prompt('Enter component/group id to assign this layer to:');
+          if (gid && gid.trim().length > 0) {
+            onAssignToComponent && onAssignToComponent(gid.trim());
+          }
+          onClose();
+        }}
+        className="w-full px-3 py-2 text-left text-sm text-zinc-300 hover:bg-zinc-800 flex items-center gap-2 transition-colors"
+      >
+        <X size={14} className="text-yellow-400" />
+        Assign to Component
+      </button>
       <button
         onClick={() => { onDelete(); onClose(); }}
         className="w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2 transition-colors"

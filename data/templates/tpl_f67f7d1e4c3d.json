@@ -1,0 +1,185 @@
+{
+  "id": "tpl_f67f7d1e4c3d",
+  "template": {
+    "template_info": {
+      "template_id": "tpl_a72764c063a4",
+      "name": "Smart Automation Template",
+      "canvas_size": {
+        "width": 2560,
+        "height": 1440
+      },
+      "total_duration": 22,
+      "elevenlabs_api_key": "d4e2624f6a58d91ca1fbe3ec43eacd333d4d223685cf255cc01d8ca7af6a09bc"
+    },
+    "modifications": {
+      "new_video": {
+        "id": "fpfiuhfa3",
+        "original_name": "New_Video",
+        "type": "video",
+        "content": "http://localhost:3001/uploads/1766933764636-new_video.bin",
+        "script": "",
+        "voice_id": "",
+        "transform": {
+          "x": 2.9523809523811906,
+          "y": 44,
+          "width": 2544.9523809523807,
+          "height": 1362.4761904761906,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 1,
+          "volume": 1
+        },
+        "timing": {
+          "start_time": 0,
+          "duration": 7.565000000000001
+        }
+      },
+      "base_image": {
+        "id": "busp621u3",
+        "original_name": "base_Image",
+        "type": "image",
+        "content": "http://localhost:3001/uploads/1766933764689-base_image.bin",
+        "script": "",
+        "voice_id": "",
+        "transform": {
+          "x": 18.190476190476147,
+          "y": 15.333333333333485,
+          "width": 2522.095238095238,
+          "height": 1414.2857142857142,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 2
+        },
+        "timing": {
+          "start_time": 7.55,
+          "duration": 4.35
+        }
+      },
+      "newext": {
+        "id": "63ty6bb01",
+        "original_name": "Newext",
+        "type": "text",
+        "content": "السعودية تهدد اليمن",
+        "script": "السعودية تهدد اليمن",
+        "voice_id": "",
+        "transform": {
+          "x": 876,
+          "y": 220,
+          "width": 800,
+          "height": 200,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 3,
+          "font_size": 80,
+          "font_weight": "900",
+          "text_color": "#0d0d0d",
+          "text_align": "center"
+        },
+        "timing": {
+          "start_time": 7.542133999999988,
+          "duration": 4.35
+        }
+      },
+      "new_text": {
+        "id": "cs47vg71k",
+        "original_name": "New_Text",
+        "type": "text",
+        "content": "هددت السعودية الانتقالي بتسليم السلاح والامتثال لاوامر الحكومة ",
+        "script": "هددت السعودية الانتقالي بتسليم السلاح والامتثال لاوامر الحكومة ",
+        "voice_id": "",
+        "transform": {
+          "x": 626,
+          "y": 393,
+          "width": 1298.2857142857142,
+          "height": 168,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 4,
+          "font_size": 50,
+          "font_weight": "900",
+          "text_color": "#ffffff",
+          "text_align": "center"
+        },
+        "timing": {
+          "start_time": 7.542133999999988,
+          "duration": 4.325
+        }
+      },
+      "news_image": {
+        "id": "691xelf8k",
+        "original_name": "News_Image",
+        "type": "image",
+        "content": "http://localhost:3001/uploads/1766933764692-news_image.bin",
+        "script": "",
+        "voice_id": "",
+        "transform": {
+          "x": 1024,
+          "y": 629,
+          "width": 500,
+          "height": 500,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 5
+        },
+        "timing": {
+          "start_time": 7.542133999999988,
+          "duration": 4.325
+        }
+      },
+      "new_audio": {
+        "id": "ufsc7dq9m",
+        "original_name": "New Audio",
+        "type": "audio",
+        "content": "http://localhost:3001/uploads/1766933764695-new_audio.bin",
+        "script": "اليمن في طريقها للنهاية كس ام اليمن",
+        "voice_id": "fkqevZRU7Xj52dY1CTkq",
+        "transform": {
+          "x": 1030,
+          "y": 570,
+          "width": 500,
+          "height": 500,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 6,
+          "volume": 1
+        },
+        "timing": {
+          "start_time": 7.623699999999948,
+          "duration": 3.57875
+        }
+      }
+    },
+    "render_settings": {
+      "format": "mp4",
+      "fps": 30,
+      "quality": "high",
+      "callback_url": "https://n8n.srv968786.hstgr.cloud/webhook/creatoclone"
+    },
+    "order": [
+      "new_video",
+      "base_image",
+      "newext",
+      "new_text",
+      "news_image",
+      "new_audio"
+    ]
+  }
+}

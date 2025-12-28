@@ -1,0 +1,161 @@
+{
+  "id": "r_310971839b32",
+  "status": "done",
+  "created_at": 1766928492339,
+  "template_id": "tpl_d2446dd467ba",
+  "payload": {
+    "template_info": {
+      "template_id": "p-xlckieh7n",
+      "name": "Smart Automation Template",
+      "canvas_size": {
+        "width": 2560,
+        "height": 1440
+      },
+      "total_duration": 18,
+      "elevenlabs_api_key": "d4e2624f6a58d91ca1fbe3ec43eacd333d4d223685cf255cc01d8ca7af6a09bc"
+    },
+    "modifications": {
+      "new_video": {
+        "id": "yty284o4q",
+        "original_name": "New Video",
+        "type": "video",
+        "content": "http://localhost:3001/uploads/1766928492301-new_video.bin",
+        "script": "",
+        "voice_id": "",
+        "transform": {
+          "x": 13.71428571428578,
+          "y": 82,
+          "width": 2512.9523809523807,
+          "height": 1348.7619047619046,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 1,
+          "volume": 1
+        },
+        "timing": {
+          "start_time": 0,
+          "duration": 7.940000000000001
+        }
+      },
+      "new_image": {
+        "id": "o89lofs6p",
+        "original_name": "New Image",
+        "type": "image",
+        "content": "http://localhost:3001/uploads/1766928492325-new_image.bin",
+        "script": "",
+        "voice_id": "",
+        "transform": {
+          "x": 668.8571428571429,
+          "y": 574.5714285714286,
+          "width": 1159.8095238095239,
+          "height": 652.3809523809524,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 5
+        },
+        "timing": {
+          "start_time": 7.966899999999995,
+          "duration": 10
+        }
+      },
+      "title": {
+        "id": "ogw0kl5pl",
+        "original_name": "title",
+        "type": "text",
+        "content": "اليمن السعيد",
+        "script": "اليمن السعيد",
+        "voice_id": "",
+        "transform": {
+          "x": 876,
+          "y": 232,
+          "width": 800,
+          "height": 200,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 3,
+          "font_size": 64,
+          "font_weight": "900",
+          "text_color": "#0a0a0a",
+          "text_align": "center"
+        },
+        "timing": {
+          "start_time": 7.966899999999995,
+          "duration": 10
+        }
+      },
+      "new_text": {
+        "id": "avjjgk92i",
+        "original_name": "New Text",
+        "type": "text",
+        "content": "اليمن يتحول من سعيد الى تعيس بعد اعلان الانفصال وتقسيم البلد  اليمني ابن الكلب لايفهم",
+        "script": "اليمن يتحول من سعيد الى تعيس بعد اعلان الانفصال وتقسيم البلد  اليمني ابن الكلب لايفهم",
+        "voice_id": "",
+        "transform": {
+          "x": 410,
+          "y": 402,
+          "width": 1735.6190476190477,
+          "height": 161.9047619047619,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 4,
+          "font_size": 53,
+          "font_weight": "900",
+          "text_color": "#ffffff",
+          "text_align": "center"
+        },
+        "timing": {
+          "start_time": 7.966899999999995,
+          "duration": 10
+        }
+      },
+      "new_audio": {
+        "id": "nt1s1vcty",
+        "original_name": "New Audio",
+        "type": "audio",
+        "content": "http://localhost:3001/uploads/1766928492327-new_audio.bin",
+        "script": "اليمن يتحول من سعيد الى تعيس بعد اعلان الانفصال وتقسيم البلد  اليمني ابن الكلب لايفهم",
+        "voice_id": "fkqevZRU7Xj52dY1CTkq",
+        "transform": {
+          "x": 1030,
+          "y": 570,
+          "width": 500,
+          "height": 500,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 6,
+          "volume": 1
+        },
+        "timing": {
+          "start_time": 7.966899999999995,
+          "duration": 7.549375
+        }
+      }
+    },
+    "render_settings": {
+      "format": "mp4",
+      "fps": 30,
+      "quality": "high",
+      "callback_url": "https://n8n.srv968786.hstgr.cloud/webhook/creatoclone"
+    },
+    "__request_base_url": "http://localhost:3001"
+  },
+  "started_at": 1766928597520,
+  "mp4_url": "http://localhost:3001/uploads/render-1766928608156.mp4",
+  "generatedAudio": [],
+  "completed_at": 1766928619383
+}

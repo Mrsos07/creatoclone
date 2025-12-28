@@ -169,7 +169,9 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({ layer, project, onUpd
         {layer.type === 'text' && (
           <section className="space-y-4 pt-6 border-t border-zinc-800">
             <label className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Text Content</label>
-            <textarea value={layer.content} onChange={(e) => onUpdate({ content: e.target.value })} className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs text-white h-24 focus:border-blue-500/50 focus:outline-none resize-none" dir="auto" />
+              <textarea value={layer.content} onChange={(e) => onUpdate({ content: e.target.value })} className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs text-white h-24 focus:border-blue-500/50 focus:outline-none resize-none" dir="auto" />
+              <label className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mt-2">Render Text (script)</label>
+              <textarea value={layer.script || ''} onChange={(e) => onUpdate({ script: e.target.value })} className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs text-white h-20 focus:border-blue-500/50 focus:outline-none resize-none" dir="auto" />
             <div className="grid grid-cols-2 gap-4">
                <PropertyField label="Font Size" value={layer.fontSize || 32} onChange={(val) => onUpdate({ fontSize: parseInt(val) })} />
                <div className="space-y-1.5">
@@ -180,6 +182,17 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({ layer, project, onUpd
                   </div>
                </div>
             </div>
+           <div className="space-y-2 pt-2">
+              <label className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Font Family</label>
+              <select value={(layer as any).fontFamily || 'Arial'} onChange={(e)=> onUpdate({ fontFamily: e.target.value } as any)} className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs text-white focus:border-blue-500/50 focus:outline-none cursor-pointer">
+                <option value="Arial">Arial</option>
+                <option value="Cairo">Cairo (Google Fonts)</option>
+                <option value="Noto Sans Arabic">Noto Sans Arabic (Google Fonts)</option>
+                <option value="Roboto">Roboto (Google Fonts)</option>
+                <option value="Tajawal">Tajawal (Google Fonts)</option>
+                <option value="Tangerine">Tangerine (Google Fonts)</option>
+              </select>
+           </div>
           </section>
         )}
 

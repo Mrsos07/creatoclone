@@ -1,0 +1,15 @@
+ffmpeg version 6.1.1-essentials_build-www.gyan.dev Copyright (c) 2000-2023 the FFmpeg developers
+  built with gcc 12.2.0 (Rev10, Built by MSYS2 project)
+  configuration: --enable-gpl --enable-version3 --enable-static --pkg-config=pkgconf --disable-w32threads --disable-autodetect --enable-fontconfig --enable-iconv --enable-gnutls --enable-libxml2 --enable-gmp --enable-bzlib --enable-lzma --enable-zlib --enable-libsrt --enable-libssh --enable-libzmq --enable-avisynth --enable-sdl2 --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxvid --enable-libaom --enable-libopenjpeg --enable-libvpx --enable-mediafoundation --enable-libass --enable-libfreetype --enable-libfribidi --enable-libharfbuzz --enable-libvidstab --enable-libvmaf --enable-libzimg --enable-amf --enable-cuda-llvm --enable-cuvid --enable-ffnvcodec --enable-nvdec --enable-nvenc --enable-dxva2 --enable-d3d11va --enable-libvpl --enable-libgme --enable-libopenmpt --enable-libopencore-amrwb --enable-libmp3lame --enable-libtheora --enable-libvo-amrwbenc --enable-libgsm --enable-libopencore-amrnb --enable-libopus --enable-libspeex --enable-libvorbis --enable-librubberband
+  libavutil      58. 29.100 / 58. 29.100
+  libavcodec     60. 31.102 / 60. 31.102
+  libavformat    60. 16.100 / 60. 16.100
+  libavdevice    60.  3.100 / 60.  3.100
+  libavfilter     9. 12.100 /  9. 12.100
+  libswscale      7.  5.100 /  7.  5.100
+  libswresample   4. 12.100 /  4. 12.100
+  libpostproc    57.  3.100 / 57.  3.100
+[Parsed_drawtext_7 @ 000001f809aa2600] Both text and text file provided. Please provide only one
+[AVFilterGraph @ 000001f809a9dd00] Error initializing filters
+Failed to set value '[1:v] scale=2544.9523809523807:1362.4761904761906,format=rgba, setpts=PTS+0/TB [s0]; [0:v][s0] overlay=x=2.9523809523811906:y=44:enable='between(t,0,7.565000000000001)' [vout0]; [2:v] scale=2522.095238095238:1414.2857142857142,format=rgba [s1]; [vout0][s1] overlay=x=18.190476190476147:y=15.333333333333485:enable='between(t,7.55,11.899999999999999)' [vout1]; [vout1] drawtext=textfile='C:\\Users\\engsa\\Desktop\\CREATOCLONE\\uploads\\text-1766933768107-0.txt':reload=1:fontcolor=#0d0d0d:fontsize=80:x=876:y=220:enable='between(t,7.542133999999988,11.892133999999988)':fontfile='C:\\Windows\\Fonts\\arial.ttf' [vtext0]; [vtext0] drawtext=textfile='C:\\Users\\engsa\\Desktop\\CREATOCLONE\\uploads\\text-1766933768107-1.txt':reload=1:fontcolor=#ffffff:fontsize=50:x=626:y=393:enable='between(t,7.542133999999988,11.86713399999999)':fontfile='C:\\Windows\\Fonts\\arial.ttf' [vtext1]; [3:v] scale=500:500,format=rgba [s2]; [vtext1][s2] overlay=x=1024:y=629:enable='between(t,7.542133999999988,11.86713399999999)' [vout2]; [1:a] adelay=0|0 [aud0]; [4:a] adelay=7624|7624 [aud1]; [aud0][aud1] amix=inputs=2:duration=longest:dropout_transition=0 [mixedaudio]' for option 'filter_complex': Invalid argument
+Error parsing global options: Invalid argument

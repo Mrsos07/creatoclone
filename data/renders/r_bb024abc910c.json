@@ -1,0 +1,166 @@
+{
+  "id": "r_bb024abc910c",
+  "status": "done",
+  "created_at": 1766930990330,
+  "template_id": "tpl_be081b5061e1",
+  "payload": {
+    "template_info": {
+      "template_id": "p-xlckieh7n",
+      "name": "Smart Automation Template",
+      "canvas_size": {
+        "width": 2560,
+        "height": 1440
+      },
+      "total_duration": 120,
+      "elevenlabs_api_key": "d4e2624f6a58d91ca1fbe3ec43eacd333d4d223685cf255cc01d8ca7af6a09bc"
+    },
+    "modifications": {
+      "new_video": {
+        "id": "0xokqp9ct",
+        "original_name": "New Video",
+        "type": "video",
+        "content": "http://localhost:3001/uploads/1766918605072-new_video.bin",
+        "script": "",
+        "voice_id": "",
+        "transform": {
+          "x": 4.4761904761901405,
+          "y": 22.952380952380963,
+          "width": 2526.666666666667,
+          "height": 1394.4761904761904,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 1,
+          "volume": 1
+        },
+        "timing": {
+          "start_time": 0.175,
+          "duration": 8.465000000000002
+        }
+      },
+      "new_image": {
+        "id": "3m22l2b45",
+        "original_name": "New Image",
+        "type": "image",
+        "content": "http://localhost:3001/uploads/1766918605128-new_image.bin",
+        "script": "",
+        "voice_id": "",
+        "transform": {
+          "x": 694.7619047619048,
+          "y": 571.5238095238095,
+          "width": 1164.3809523809523,
+          "height": 640.1904761904761,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 5
+        },
+        "timing": {
+          "start_time": 8.838934000000018,
+          "duration": 10
+        }
+      },
+      "title": {
+        "id": "kvvfv2bxe",
+        "original_name": "title",
+        "type": "text",
+        "content": "اليمن التعيس",
+        "script": "اليمن التعيس",
+        "voice_id": "",
+        "transform": {
+          "x": 908,
+          "y": 229,
+          "width": 800,
+          "height": 200,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 3,
+          "font_size": 80,
+          "font_weight": "900",
+          "text_color": "#0d0d0d",
+          "text_align": "center"
+        },
+        "timing": {
+          "start_time": 8.838934000000018,
+          "duration": 10
+        }
+      },
+      "subtitle": {
+        "id": "x9vi1ies4",
+        "original_name": "subtitle",
+        "type": "text",
+        "content": "صرح مصدر مسؤول ان اليمن في طريقها للانفصال بعد اعلان الجنوب انها دولة مستقلة ",
+        "script": "صرح مصدر مسؤول ان اليمن في طريقها للانفصال بعد اعلان الجنوب انها دولة مستقلة ",
+        "voice_id": "",
+        "transform": {
+          "x": 478,
+          "y": 380,
+          "width": 1592.3809523809525,
+          "height": 174.0952380952381,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 4,
+          "font_size": 45,
+          "font_weight": "900",
+          "text_color": "#ffffff",
+          "text_align": "center"
+        },
+        "timing": {
+          "start_time": 8.838934000000018,
+          "duration": 10
+        }
+      },
+      "new_audio": {
+        "id": "wb1t349vf",
+        "original_name": "New Audio",
+        "type": "audio",
+        "content": "http://localhost:3001/uploads/wb1t349vf.mp3",
+        "script": "صرح مصدر مسؤول ان اليمن في طريقها للانفصال بعد اعلان الجنوب انها دولة مستقلة ",
+        "voice_id": "fkqevZRU7Xj52dY1CTkq",
+        "transform": {
+          "x": 1030,
+          "y": 570,
+          "width": 500,
+          "height": 500,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 6,
+          "volume": 1
+        },
+        "timing": {
+          "start_time": 8.838934000000018,
+          "duration": 6.687313
+        }
+      }
+    },
+    "render_settings": {
+      "format": "mp4",
+      "fps": 30,
+      "quality": "high",
+      "callback_url": "https://n8n.srv968786.hstgr.cloud/webhook/creatoclone"
+    },
+    "__request_base_url": "http://localhost:3001"
+  },
+  "started_at": 1766931070597,
+  "mp4_url": "http://localhost:3001/uploads/render-1766931073170.mp4",
+  "generatedAudio": [
+    {
+      "id": "wb1t349vf",
+      "url": "http://localhost:3001/uploads/wb1t349vf.mp3"
+    }
+  ],
+  "completed_at": 1766931091322
+}

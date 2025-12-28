@@ -1,0 +1,198 @@
+{
+  "id": "r_f8023dc8860c",
+  "status": "done",
+  "created_at": 1766935163898,
+  "template_id": "tpl_49013c7d14f7",
+  "payload": {
+    "template_info": {
+      "template_id": "tpl_d16c989e2209",
+      "name": "Smart Automation Template",
+      "canvas_size": {
+        "width": 2560,
+        "height": 1440
+      },
+      "total_duration": 120,
+      "elevenlabs_api_key": "d4e2624f6a58d91ca1fbe3ec43eacd333d4d223685cf255cc01d8ca7af6a09bc"
+    },
+    "modifications": {
+      "new_video": {
+        "id": "36kjaskxs",
+        "original_name": "New Video",
+        "type": "video",
+        "content": "http://localhost:3001/uploads/1766935163527-new_video.mp4",
+        "script": "",
+        "voice_id": "",
+        "transform": {
+          "x": 62.47619047619037,
+          "y": 27.809523809523853,
+          "width": 2482.4761904761904,
+          "height": 1394.4761904761904,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 1,
+          "volume": 1
+        },
+        "timing": {
+          "start_time": 0,
+          "duration": 7.965
+        }
+      },
+      "base_image": {
+        "id": "pbnrks6jd",
+        "original_name": "Base_Image",
+        "type": "image",
+        "content": "http://localhost:3001/uploads/1766935163557-base_image.jpg",
+        "script": "",
+        "voice_id": "",
+        "transform": {
+          "x": 24.857142857142662,
+          "y": 18.63492063492049,
+          "width": 2481.968253968254,
+          "height": 1384.3174603174605,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 2
+        },
+        "timing": {
+          "start_time": 7.925,
+          "duration": 4.05
+        }
+      },
+      "newtext1": {
+        "id": "my8qtyc54",
+        "original_name": "NewText1",
+        "type": "text",
+        "content": "افتتاح القدية",
+        "script": "افتتاح القدية",
+        "voice_id": "",
+        "transform": {
+          "x": 885,
+          "y": 224,
+          "width": 800,
+          "height": 200,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 3,
+          "font_size": 80,
+          "font_weight": "900",
+          "text_color": "#0a0a0a",
+          "text_align": "center"
+        },
+        "timing": {
+          "start_time": 7.949999999999999,
+          "duration": 10
+        }
+      },
+      "new_text": {
+        "id": "h3adh6ruz",
+        "original_name": "New Text",
+        "type": "text",
+        "content": "اعلنت السعودية عن افتتاح سقس فلاقس في القدية",
+        "script": "اعلنت السعودية عن افتتاح سقس فلاقس في القدية",
+        "voice_id": "",
+        "transform": {
+          "x": 516,
+          "y": 427,
+          "width": 1532.952380952381,
+          "height": 91.80952380952381,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 4,
+          "font_size": 50,
+          "font_weight": "900",
+          "text_color": "#ffffff",
+          "text_align": "center"
+        },
+        "timing": {
+          "start_time": 7.999999999999999,
+          "duration": 10
+        }
+      },
+      "news_image": {
+        "id": "uxx99c1zy",
+        "original_name": "News_Image",
+        "type": "image",
+        "content": "http://localhost:3001/uploads/1766935163560-news_image.jpg",
+        "script": "",
+        "voice_id": "",
+        "transform": {
+          "x": 684.0952380952381,
+          "y": 551.7142857142857,
+          "width": 1152.1904761904761,
+          "height": 643.2380952380953,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 5
+        },
+        "timing": {
+          "start_time": 7.924999999999999,
+          "duration": 10
+        }
+      },
+      "new_audio": {
+        "id": "hlms71wbi",
+        "original_name": "New Audio",
+        "type": "audio",
+        "content": "http://localhost:3001/uploads/hlms71wbi.mp3",
+        "script": "اعلنت السعودية عن افتتاح سقس فلاقس في القدية",
+        "voice_id": "fkqevZRU7Xj52dY1CTkq",
+        "transform": {
+          "x": 1030,
+          "y": 570,
+          "width": 500,
+          "height": 500,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 6,
+          "volume": 1
+        },
+        "timing": {
+          "start_time": 7.9,
+          "duration": 3.996688
+        }
+      }
+    },
+    "render_settings": {
+      "format": "mp4",
+      "fps": 30,
+      "quality": "high",
+      "callback_url": "https://n8n.srv968786.hstgr.cloud/webhook/creatoclone"
+    },
+    "order": [
+      "new_video",
+      "base_image",
+      "newtext1",
+      "new_text",
+      "news_image",
+      "new_audio"
+    ],
+    "__request_base_url": "http://localhost:3001"
+  },
+  "started_at": 1766935175433,
+  "mp4_url": "http://localhost:3001/uploads/render-1766935177578.mp4",
+  "generatedAudio": [
+    {
+      "id": "hlms71wbi",
+      "url": "http://localhost:3001/uploads/hlms71wbi.mp3"
+    }
+  ],
+  "completed_at": 1766935190229
+}

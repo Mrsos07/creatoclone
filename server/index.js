@@ -2,9 +2,11 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import fetch from 'node-fetch';
 import { renderTemplate } from './render.js';
 import multer from 'multer';
 import crypto from 'crypto';
+import cp from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,6 +29,29 @@ const uploadsDir = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 app.use('/uploads', express.static(uploadsDir));
 
+// Ensure common Google Fonts are available in uploads/fonts
+const fontsDir = path.join(uploadsDir, 'fonts');
+if (!fs.existsSync(fontsDir)) fs.mkdirSync(fontsDir, { recursive: true });
+async function ensureFont(name, url) {
+  try {
+    const filename = `${name}.ttf`;
+    const dest = path.join(fontsDir, filename);
+    if (fs.existsSync(dest)) return;
+    const res = await fetch(url);
+    if (!res.ok) { console.warn('Failed download font', name, res.status); return; }
+    const buf = Buffer.from(await res.arrayBuffer());
+    await fs.promises.writeFile(dest, buf);
+    console.log('Downloaded font', name);
+  } catch (e) { console.warn('ensureFont error', name, e); }
+}
+// download Cairo and Noto Sans Arabic from Google Fonts repo if missing
+// Download only Cairo and Tajawal (try jsDelivr fallback) and place into uploads/fonts
+(async () => {
+  await ensureFont('Cairo-Regular', 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/cairo/Cairo-Regular.ttf');
+  await ensureFont('Cairo-Bold', 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/cairo/Cairo-Bold.ttf');
+  await ensureFont('Tajawal-Regular', 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/tajawal/Tajawal-Regular.ttf');
+})();
+
 // Multer upload config
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadsDir),
@@ -35,18 +60,91 @@ const storage = multer.diskStorage({
     cb(null, `${Date.now()}-${safe}`);
   }
 });
+// Helper: fetch Google Fonts CSS and download referenced font files (woff2/woff)
+async function ensureFontFromCss(family, cssUrl) {
+  try {
+    const res = await fetch(cssUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+    if (!res.ok) { console.warn('Failed fetch CSS', cssUrl, res.status); return; }
+    const css = await res.text();
+    const urls = Array.from(css.matchAll(/url\((https:[^)]+)\)/g)).map(m => m[1]);
+    for (const u of urls) {
+      try {
+        const fname = path.basename(new URL(u).pathname);
+        const dest = path.join(fontsDir, `${family}-${fname}`);
+        if (fs.existsSync(dest)) continue;
+        const r = await fetch(u);
+        if (!r.ok) { console.warn('Failed download font file', u, r.status); continue; }
+        const buf = Buffer.from(await r.arrayBuffer());
+        await fs.promises.writeFile(dest, buf);
+        console.log('Downloaded font asset', dest);
+      } catch (e) { console.warn('download font asset failed', e); }
+    }
+  } catch (e) { console.warn('ensureFontFromCss error', family, e); }
+}
+
+// Download Cairo and Tajawal from Google Fonts CSS (woff2 assets)
+(async () => {
+  await ensureFontFromCss('Cairo', 'https://fonts.googleapis.com/css2?family=Cairo:wght@200;400;700;900&display=swap');
+  await ensureFontFromCss('Tajawal', 'https://fonts.googleapis.com/css2?family=Tajawal:wght@200;400;700;900&display=swap');
+})();
+
 const upload = multer({ storage });
 
 // Upload endpoint: accepts multipart/form-data with field 'file' and returns public URL
-app.post('/api/upload', upload.single('file'), (req, res) => {
+app.post('/api/upload', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'no_file' });
+    // ensure file has an extension matching its mimetype so browsers render images/videos correctly
+    const mimetype = req.file.mimetype || '';
+    let ext = path.extname(req.file.filename) || '';
+    if (!ext) {
+      if (mimetype.includes('jpeg')) ext = '.jpg';
+      else if (mimetype.includes('png')) ext = '.png';
+      else if (mimetype.includes('webp')) ext = '.webp';
+      else if (mimetype.includes('mp4')) ext = '.mp4';
+      else if (mimetype.includes('mpeg') || mimetype.includes('mp3')) ext = '.mp3';
+      else ext = '';
+    }
+    let filename = req.file.filename;
+    if (ext && !filename.endsWith(ext)) {
+      const newName = filename + ext;
+      const oldPath = path.join(uploadsDir, filename);
+      const newPath = path.join(uploadsDir, newName);
+      try {
+        await fs.promises.rename(oldPath, newPath);
+        filename = newName;
+      } catch (e) { console.warn('rename upload file failed', e); }
+    }
     const baseUrl = `${req.protocol}://${req.get('host')}`;
-    const url = `${baseUrl}/uploads/${req.file.filename}`;
+    const url = `${baseUrl}/uploads/${filename}`;
     return res.json({ url });
   } catch (err) {
     console.error('Upload error', err);
     return res.status(500).json({ error: 'upload_failed' });
+  }
+});
+
+// TTS test endpoint: generate speech with ElevenLabs and return public URL
+app.post('/api/tts-test', async (req, res) => {
+  try {
+    const { voice_id, api_key, text } = req.body || {};
+    if (!voice_id || !api_key || !text) return res.status(400).json({ error: 'missing_params' });
+    const ttsRes = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'xi-api-key': api_key },
+      body: JSON.stringify({ text, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75 } })
+    });
+    if (!ttsRes.ok) return res.status(502).json({ error: 'tts_failed', detail: await ttsRes.text() });
+    const arrayBuffer = await ttsRes.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const filename = `tts-${Date.now()}.mp3`;
+    const outPath = path.join(uploadsDir, filename);
+    await fs.promises.writeFile(outPath, buffer);
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    return res.json({ url: `${baseUrl}/uploads/${filename}` });
+  } catch (e) {
+    console.error('tts-test error', e);
+    return res.status(500).json({ error: 'internal' });
   }
 });
 
@@ -63,11 +161,47 @@ function generateId(prefix = '') {
 async function saveTemplate(template) {
   // template may contain remote asset URLs or data: URLs — download and store copies in uploadsDir
   const id = template.template_id || generateId('tpl_');
-  const baseUrl = template.__request_base_url || (process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`);
+  const portForUrl = process.env.PORT || 3001;
+  const baseUrl = template.__request_base_url || (process.env.BASE_URL || `http://localhost:${portForUrl}`);
   const mods = template.modifications || {};
+  // preserve order of modifications as an array so renderer can respect stacking/sequence
+  const order = Object.keys(mods || {});
+  template.order = order;
+  // Reject browser-local blob: URLs — client must upload them first
+  const offendingBlobs = [];
+  for (const k of Object.keys(mods)) {
+    const it = mods[k];
+    if (!it) continue;
+    const c = it.content;
+    if (typeof c === 'string' && c.startsWith('blob:')) offendingBlobs.push(k);
+  }
+  if (offendingBlobs.length > 0) {
+    const msg = 'Template contains browser-local blob: URLs for modifications: ' + offendingBlobs.join(', ');
+    throw new Error(msg);
+  }
   for (const k of Object.keys(mods)) {
     const it = mods[k];
     if (!it || !it.content) continue;
+    // If text layer specifies font_family, attempt to map it to a local font file
+    try {
+      if (it.type === 'text' && it.style && it.style.font_family) {
+        const fam = String(it.style.font_family).trim();
+        // check uploads/fonts/<fam>.ttf first
+        const fontsDir = path.join(uploadsDir, 'fonts');
+        if (!fs.existsSync(fontsDir)) fs.mkdirSync(fontsDir, { recursive: true });
+        const candidate = path.join(fontsDir, `${fam.replace(/\s+/g,'_')}.ttf`);
+        if (fs.existsSync(candidate)) {
+          it.font_file = `${baseUrl}/uploads/fonts/${path.basename(candidate)}`;
+        } else {
+          // try to find system font by common paths
+          const systemPaths = ['C:\\Windows\\Fonts', '/usr/share/fonts/truetype', '/Library/Fonts'];
+          for (const sp of systemPaths) {
+            const tryPath = path.join(sp, `${fam}.ttf`);
+            if (fs.existsSync(tryPath)) { it.font_file = tryPath; break; }
+          }
+        }
+      }
+    } catch (e) { console.warn('font mapping error', e); }
     try {
       const c = it.content;
       // data: URL
@@ -114,6 +248,11 @@ async function saveTemplate(template) {
 
   const file = path.join(templatesDir, `${id}.json`);
   await fs.promises.writeFile(file, JSON.stringify({ id, template }, null, 2));
+  // also save a copy as the 'last saved' template for quick retrieval
+  try {
+    const lastFile = path.join(templatesDir, `last_template.json`);
+    await fs.promises.writeFile(lastFile, JSON.stringify({ id, template }, null, 2));
+  } catch (e) { console.warn('Failed to write last_template copy', e); }
   return id;
 }
 
@@ -160,6 +299,74 @@ app.get('/api/templates/:id', async (req, res) => {
 app.get('/api/templates', async (req, res) => {
   const list = (await fs.promises.readdir(templatesDir)).filter(f => f.endsWith('.json')).map(f => f.replace(/\.json$/, ''));
   return res.json({ templates: list });
+});
+
+// return last saved template quickly
+app.get('/api/templates/last', async (req, res) => {
+  try {
+    const file = path.join(templatesDir, 'last_template.json');
+    if (!fs.existsSync(file)) return res.status(404).json({ error: 'not_found' });
+    const raw = await fs.promises.readFile(file, 'utf8');
+    return res.json(JSON.parse(raw));
+  } catch (e) { return res.status(500).json({ error: 'read_failed' }); }
+});
+
+// Export assets for a template: copies referenced uploads into a folder and zips them
+app.post('/api/templates/:id/export-assets', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const tpl = await loadTemplate(id);
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const assetsDir = path.join(templatesDir, `${id}_assets`);
+    if (!fs.existsSync(assetsDir)) fs.mkdirSync(assetsDir, { recursive: true });
+    const files = [];
+    const mods = tpl.modifications || {};
+    const group = req.query.group || req.body?.group_id;
+    for (const k of Object.keys(mods)) {
+      const it = mods[k];
+      if (!it || !it.content) continue;
+      if (group) {
+        // template stores group id as group_id in modifications
+        if (!it.group_id && !it.groupId && !it.group) continue;
+        const gid = it.group_id || it.groupId || it.group;
+        if (String(gid) !== String(group)) continue;
+      }
+      const c = it.content;
+      if (typeof c === 'string' && (c.startsWith(baseUrl + '/uploads') || c.includes('/uploads/'))) {
+        // extract filename
+        const p = c.split('/uploads/').pop();
+        if (!p) continue;
+        const src = path.join(uploadsDir, p);
+        if (fs.existsSync(src)) {
+          const dest = path.join(assetsDir, path.basename(src));
+          await fs.promises.copyFile(src, dest);
+          files.push(dest);
+        }
+      }
+    }
+    if (files.length === 0) return res.status(400).json({ error: 'no_assets' });
+    // create zip in uploads
+    const zipName = `${id}-assets-${Date.now()}.zip`;
+    const zipPath = path.join(uploadsDir, zipName);
+    // try using PowerShell Compress-Archive on Windows else fallback to creating a simple folder response
+    try {
+      if (process.platform === 'win32') {
+        const psArgs = ['-NoProfile', '-Command', `Compress-Archive -Path "${assetsDir}\\*" -DestinationPath "${zipPath}" -Force`];
+        cp.spawnSync('powershell', psArgs, { stdio: 'inherit' });
+      } else {
+        // try zip command on unix
+        cp.spawnSync('zip', ['-r', zipPath, '.'], { cwd: assetsDir });
+      }
+      const url = `${baseUrl}/uploads/${zipName}`;
+      return res.json({ url, files: files.map(f => path.basename(f)) });
+    } catch (e) {
+      console.error('Zip failed', e);
+      return res.json({ folder: assetsDir, files: files.map(f => path.basename(f)) });
+    }
+  } catch (err) {
+    console.error('Export assets failed', err);
+    return res.status(500).json({ error: 'export_failed' });
+  }
 });
 
 // Render task queue endpoints
@@ -210,7 +417,7 @@ async function processNextTask() {
       // perform TTS generation as in /api/render
       const payload = task.payload;
       const elevenApiKey = process.env.ELEVENLABS_API_KEY || payload?.template_info?.elevenlabs_api_key;
-      const requestBase = payload?.__request_base_url || process.env.BASE_URL || (`http://localhost:${process.env.PORT || 3000}`);
+      const requestBase = payload?.__request_base_url || process.env.BASE_URL || (`http://localhost:${process.env.PORT || 3001}`);
       const generatedAudio = [];
       const mods = payload.modifications || {};
       for (const k of Object.keys(mods)) {
@@ -334,5 +541,5 @@ if (fs.existsSync(path.join(distDir, 'index.html'))) {
   });
 }
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Server listening on port ${port}`));
+  const port = process.env.PORT || 3001;
+  app.listen(port, () => console.log(`Server listening on port ${port}`));

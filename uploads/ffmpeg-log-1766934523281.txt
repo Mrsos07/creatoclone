@@ -1,0 +1,91 @@
+ffmpeg version 6.1.1-essentials_build-www.gyan.dev Copyright (c) 2000-2023 the FFmpeg developers
+  built with gcc 12.2.0 (Rev10, Built by MSYS2 project)
+  configuration: --enable-gpl --enable-version3 --enable-static --pkg-config=pkgconf --disable-w32threads --disable-autodetect --enable-fontconfig --enable-iconv --enable-gnutls --enable-libxml2 --enable-gmp --enable-bzlib --enable-lzma --enable-zlib --enable-libsrt --enable-libssh --enable-libzmq --enable-avisynth --enable-sdl2 --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxvid --enable-libaom --enable-libopenjpeg --enable-libvpx --enable-mediafoundation --enable-libass --enable-libfreetype --enable-libfribidi --enable-libharfbuzz --enable-libvidstab --enable-libvmaf --enable-libzimg --enable-amf --enable-cuda-llvm --enable-cuvid --enable-ffnvcodec --enable-nvdec --enable-nvenc --enable-dxva2 --enable-d3d11va --enable-libvpl --enable-libgme --enable-libopenmpt --enable-libopencore-amrwb --enable-libmp3lame --enable-libtheora --enable-libvo-amrwbenc --enable-libgsm --enable-libopencore-amrnb --enable-libopus --enable-libspeex --enable-libvorbis --enable-librubberband
+  libavutil      58. 29.100 / 58. 29.100
+  libavcodec     60. 31.102 / 60. 31.102
+  libavformat    60. 16.100 / 60. 16.100
+  libavdevice    60.  3.100 / 60.  3.100
+  libavfilter     9. 12.100 /  9. 12.100
+  libswscale      7.  5.100 /  7.  5.100
+  libswresample   4. 12.100 /  4. 12.100
+  libpostproc    57.  3.100 / 57.  3.100
+Input #0, lavfi, from 'color=size=1280x720:duration=12:rate=25:color=black':
+  Duration: N/A, start: 0.000000, bitrate: N/A
+  Stream #0:0: Video: wrapped_avframe, yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 25 fps, 25 tbr, 25 tbn
+[mov,mp4,m4a,3gp,3g2,mj2 @ 000001e45f589d80] Unknown cover type: 0x1.
+Input #1, mov,mp4,m4a,3gp,3g2,mj2, from 'C:\Users\engsa\Desktop\CREATOCLONE\uploads\video-1766934521910-0.bin':
+  Metadata:
+    major_brand     : qt  
+    minor_version   : 0
+    compatible_brands: qt  
+    creation_time   : 2025-10-15T08:38:31.000000Z
+  Duration: 00:00:24.64, start: 0.000000, bitrate: 16561 kb/s
+  Stream #1:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 1972x1080, 16365 kb/s, 50 fps, 50 tbr, 600 tbn (default)
+    Metadata:
+      creation_time   : 2025-10-15T08:38:31.000000Z
+      handler_name    : Core Media Video
+      vendor_id       : [0][0][0][0]
+      encoder         : H.264
+  Stream #1:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 188 kb/s (default)
+    Metadata:
+      creation_time   : 2025-10-15T08:38:31.000000Z
+      handler_name    : Core Media Audio
+      vendor_id       : [0][0][0][0]
+Input #2, jpeg_pipe, from 'C:\Users\engsa\Desktop\CREATOCLONE\uploads\image-1766934522088-1.bin':
+  Duration: N/A, bitrate: N/A
+  Stream #2:0: Video: mjpeg (Baseline), yuvj420p(pc, bt470bg/unknown/unknown), 200x200 [SAR 1:1 DAR 1:1], 25 fps, 25 tbr, 25 tbn
+[mp3 @ 000001e45f5be3c0] Estimating duration from bitrate, this may be inaccurate
+Input #3, mp3, from 'C:\Users\engsa\Desktop\CREATOCLONE\uploads\audio-1766934522094-0.mp3':
+  Metadata:
+    encoder         : Lavf60.16.100
+  Duration: 00:00:02.93, start: 0.000000, bitrate: 128 kb/s
+  Stream #3:0: Audio: mp3, 44100 Hz, mono, fltp, 128 kb/s
+Stream mapping:
+  Stream #0:0 (wrapped_avframe) -> overlay
+  Stream #1:0 (h264) -> scale:default
+  Stream #1:1 (aac) -> adelay:default
+  Stream #2:0 (mjpeg) -> scale:default
+  Stream #3:0 (mp3float) -> adelay:default
+  drawtext:default -> Stream #0:0 (libx264)
+  amix:default -> Stream #0:1 (aac)
+Press [q] to stop, [?] for help
+[swscaler @ 000001e467d9f040] deprecated pixel format used, make sure you did set range correctly
+[swscaler @ 000001e467072280] deprecated pixel format used, make sure you did set range correctly
+    Last message repeated 1 times
+[swscaler @ 000001e467ff6cc0] deprecated pixel format used, make sure you did set range correctly
+[libx264 @ 000001e45fbea300] using SAR=1/1
+[libx264 @ 000001e45fbea300] using cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
+[libx264 @ 000001e45fbea300] profile High, level 3.1, 4:2:0, 8-bit
+[libx264 @ 000001e45fbea300] 264 - core 164 r3172 c1c9931 - H.264/MPEG-4 AVC codec - Copyleft 2003-2023 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=22 lookahead_threads=3 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=25 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+Output #0, mp4, to 'C:\Users\engsa\Desktop\CREATOCLONE\uploads\render-1766934521910.mp4':
+  Metadata:
+    encoder         : Lavf60.16.100
+  Stream #0:0: Video: h264 (avc1 / 0x31637661), yuv420p(progressive), 1280x720 [SAR 1:1 DAR 16:9], q=2-31, 25 fps, 12800 tbn
+    Metadata:
+      encoder         : Lavc60.31.102 libx264
+    Side data:
+      cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
+  Stream #0:1: Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, mono, fltp, 192 kb/s
+    Metadata:
+      encoder         : Lavc60.31.102 aac
+frame=    0 fps=0.0 q=0.0 size=       0kB time=N/A bitrate=N/A speed=N/A    frame=   18 fps=0.0 q=28.0 size=     512kB time=00:00:03.27 bitrate=1281.2kbits/s speed=6.18x    frame=  132 fps=128 q=28.0 size=    4352kB time=00:00:07.84 bitrate=4542.6kbits/s speed=7.61x    [out#0/mp4 @ 000001e4606fb580] video:4316kB audio:157kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 0.175921%
+frame=  198 fps=182 q=-1.0 Lsize=    4481kB time=00:00:07.91 bitrate=4636.0kbits/s speed=7.29x    
+[libx264 @ 000001e45fbea300] frame I:1     Avg QP:25.94  size: 69908
+[libx264 @ 000001e45fbea300] frame P:51    Avg QP:21.98  size: 33261
+[libx264 @ 000001e45fbea300] frame B:146   Avg QP:22.86  size: 18171
+[libx264 @ 000001e45fbea300] consecutive B-frames:  0.5%  2.0%  4.5% 92.9%
+[libx264 @ 000001e45fbea300] mb I  I16..4:  6.5% 44.9% 48.6%
+[libx264 @ 000001e45fbea300] mb P  I16..4:  2.6% 12.9% 13.9%  P16..4:  6.6%  6.5%  4.2%  0.0%  0.0%    skip:53.4%
+[libx264 @ 000001e45fbea300] mb B  I16..4:  0.6%  1.0%  2.2%  B16..8: 13.0% 11.5%  5.4%  direct: 2.8%  skip:63.4%  L0:38.1% L1:37.7% BI:24.2%
+[libx264 @ 000001e45fbea300] 8x8 transform intra:39.0% inter:30.6%
+[libx264 @ 000001e45fbea300] coded y,uvDC,uvAC intra: 54.2% 39.9% 19.4% inter: 15.7% 6.6% 0.6%
+[libx264 @ 000001e45fbea300] i16 v,h,dc,p: 58% 26% 10%  7%
+[libx264 @ 000001e45fbea300] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 34% 15% 31%  3%  4%  3%  4%  3%  3%
+[libx264 @ 000001e45fbea300] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 29% 19% 16%  5%  7%  6%  7%  5%  5%
+[libx264 @ 000001e45fbea300] i8c dc,h,v,p: 68% 14% 15%  2%
+[libx264 @ 000001e45fbea300] Weighted P-Frames: Y:19.6% UV:13.7%
+[libx264 @ 000001e45fbea300] ref P L0: 58.7% 14.3% 17.8%  7.2%  2.0%
+[libx264 @ 000001e45fbea300] ref B L0: 92.7%  5.6%  1.7%
+[libx264 @ 000001e45fbea300] ref B L1: 97.9%  2.1%
+[libx264 @ 000001e45fbea300] kb/s:4463.85
+[aac @ 000001e45fbed300] Qavg: 60274.402

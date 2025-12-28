@@ -1,0 +1,185 @@
+{
+  "id": "r_4fd7f08fe371",
+  "status": "done",
+  "created_at": 1766923905458,
+  "template_id": "tpl_f0c055e680d1",
+  "payload": {
+    "template_info": {
+      "template_id": "p-xlckieh7n",
+      "name": "Smart Automation Template",
+      "canvas_size": {
+        "width": 2560,
+        "height": 1440
+      },
+      "total_duration": 22,
+      "elevenlabs_api_key": "d4e2624f6a58d91ca1fbe3ec43eacd333d4d223685cf255cc01d8ca7af6a09bc"
+    },
+    "modifications": {
+      "new_video": {
+        "id": "f8bb9ev60",
+        "original_name": "New Video",
+        "type": "video",
+        "content": "http://localhost:3001/uploads/1766923905374-new_video.bin",
+        "script": "",
+        "voice_id": "",
+        "transform": {
+          "x": 6.000000000000227,
+          "y": 71.71428571428578,
+          "width": 2512.9523809523807,
+          "height": 1335.047619047619,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 1,
+          "volume": 1
+        },
+        "timing": {
+          "start_time": 0,
+          "duration": 7.965
+        }
+      },
+      "new_image": {
+        "id": "ldnemf5k7",
+        "original_name": "New Image",
+        "type": "image",
+        "content": "http://localhost:3001/uploads/1766923905430-new_image.bin",
+        "script": "",
+        "voice_id": "",
+        "transform": {
+          "x": -1.6190476190477057,
+          "y": 29.047619047619037,
+          "width": 2537.3333333333335,
+          "height": 1389.904761904762,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 2
+        },
+        "timing": {
+          "start_time": 7.975,
+          "duration": 10
+        }
+      },
+      "title": {
+        "id": "u5bc70zvz",
+        "original_name": "title",
+        "type": "text",
+        "content": "اليمن التعيس",
+        "script": "اليمن التعيس",
+        "voice_id": "",
+        "transform": {
+          "x": 897,
+          "y": 230,
+          "width": 800,
+          "height": 200,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 3,
+          "font_size": 80,
+          "font_weight": "900",
+          "text_color": "#ffffff",
+          "text_align": "center"
+        },
+        "timing": {
+          "start_time": 7.975,
+          "duration": 10
+        }
+      },
+      "subtitle": {
+        "id": "hrke4rghe",
+        "original_name": "subtitle",
+        "type": "text",
+        "content": "اليمن الجنوبي يعلن الانفصال",
+        "script": "اليمن الجنوبي يعلن الانفصال",
+        "voice_id": "",
+        "transform": {
+          "x": 582,
+          "y": 367,
+          "width": 1351.6190476190477,
+          "height": 186.28571428571428,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 4,
+          "font_size": 50,
+          "font_weight": "900",
+          "text_color": "#ffffff",
+          "text_align": "center"
+        },
+        "timing": {
+          "start_time": 7.975,
+          "duration": 10
+        }
+      },
+      "news_image": {
+        "id": "x3ytzh3eo",
+        "original_name": "News_Image",
+        "type": "image",
+        "content": "http://localhost:3001/uploads/1766923905433-news_image.bin",
+        "script": "",
+        "voice_id": "",
+        "transform": {
+          "x": 674.7619047619048,
+          "y": 561,
+          "width": 1175.047619047619,
+          "height": 655.4285714285714,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 5
+        },
+        "timing": {
+          "start_time": 7.975,
+          "duration": 10
+        }
+      },
+      "new_audio": {
+        "id": "v6i14b737",
+        "original_name": "New Audio",
+        "type": "audio",
+        "content": "http://localhost:3001/uploads/1766923905443-new_audio.bin",
+        "script": "اليمن الجنوبي يعلن الانفصال",
+        "voice_id": "fkqevZRU7Xj52dY1CTkq",
+        "transform": {
+          "x": 1030,
+          "y": 570,
+          "width": 500,
+          "height": 500,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 6,
+          "volume": 1
+        },
+        "timing": {
+          "start_time": 7.975,
+          "duration": 2.925688
+        }
+      }
+    },
+    "render_settings": {
+      "format": "mp4",
+      "fps": 30,
+      "quality": "high",
+      "callback_url": "https://n8n.srv968786.hstgr.cloud/webhook/creatoclone"
+    },
+    "__request_base_url": "http://localhost:3001"
+  },
+  "started_at": 1766928630002,
+  "mp4_url": "http://localhost:3001/uploads/render-1766928640636.mp4",
+  "generatedAudio": [],
+  "completed_at": 1766928662333
+}

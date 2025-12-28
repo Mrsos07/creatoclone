@@ -6,6 +6,7 @@ import {
   ChevronLeft, ChevronRight, Hash, AlertCircle, 
   Eye, EyeOff, Trash2, GripVertical, Fingerprint, FolderOpen, Save, FileVideo, Clock
 } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { LayerType, Layer, Project } from '../types';
 import { ElevenLabsService } from '../services/elevenLabsService';
 
@@ -27,6 +28,8 @@ interface SidebarProps {
   onSaveProject: (p?: Project) => void;
   onLoadProject: (p: Project) => void;
   onDeleteProject: (id: string) => void;
+  onExportAssets?: (id: string) => void;
+  onExportAssetsDownload?: (id: string) => void;
 }
 
 export const ARABIC_VOICES = [
@@ -206,6 +209,23 @@ const Sidebar: React.FC<SidebarProps> = ({
                                className="p-2 text-zinc-700 hover:text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
                              >
                                 <Trash2 size={14} />
+                             </button>
+                             <button
+                               onClick={(e) => { 
+                                 e.stopPropagation(); 
+                                 const gid = prompt('Enter component/group id to export (leave empty for full template):');
+                                 onExportAssets && onExportAssets(p.id, gid && gid.trim().length>0 ? gid.trim() : undefined); 
+                               }}
+                               className="p-2 text-zinc-700 hover:text-green-400 hover:bg-green-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-all ml-2"
+                             >
+                               <FileVideo size={14} />
+                             </button>
+                             <button
+                               onClick={(e) => { e.stopPropagation(); if (typeof onExportAssetsDownload === 'function') onExportAssetsDownload(p.id); else onExportAssets && onExportAssets(p.id); }}
+                               title="Download assets"
+                               className="p-2 text-zinc-700 hover:text-blue-400 hover:bg-blue-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-all ml-2"
+                             >
+                               <Download size={14} />
                              </button>
                           </div>
                           {currentProjectId === p.id && (

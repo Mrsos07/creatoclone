@@ -88,8 +88,94 @@ const App: React.FC = () => {
     localStorage.setItem('last_active_project', JSON.stringify(project));
   }, [project]);
 
-  const handleSaveProject = useCallback((targetProject: Project = project) => {
-    const updatedProject = { ...targetProject, updatedAt: Date.now() };
+  const handleSaveProject = useCallback(async (targetProject: Project = project) => {
+    let updatedProject = { ...targetProject, updatedAt: Date.now() };
+    // Upload any blob: or File contents in layers before saving to server
+    try {
+      for (const layer of updatedProject.layers) {
+        try {
+          if (typeof layer.content === 'string' && layer.content.startsWith('blob:')) {
+            const resp = await fetch(layer.content);
+            const blob = await resp.blob();
+            const form = new FormData();
+            const name = 'file-' + Date.now();
+            form.append('file', blob, name);
+            const upl = await fetch('/api/upload', { method: 'POST', body: form });
+            if (!upl.ok) throw new Error('Upload failed');
+            const j = await upl.json();
+            layer.content = j.url;
+          } else if (typeof layer.content === 'object' && layer.content !== null) {
+            const maybeFile = layer.content as any;
+            const isFile = typeof File !== 'undefined' && maybeFile instanceof File;
+            const isBlob = typeof Blob !== 'undefined' && maybeFile instanceof Blob;
+            if (isFile || isBlob) {
+              const form = new FormData();
+              const name = maybeFile.name || ('file-' + Date.now());
+              form.append('file', maybeFile, name);
+              const upl = await fetch('/api/upload', { method: 'POST', body: form });
+              if (!upl.ok) throw new Error('Upload failed');
+              const j = await upl.json();
+              layer.content = j.url;
+            }
+          }
+        } catch (e) {
+          console.warn('Failed to upload layer asset', layer.id, e);
+        }
+      }
+
+      // send template to server so it's persisted and assets are copied locally
+      const payload: any = {
+        template_info: {
+          template_id: updatedProject.id,
+          name: updatedProject.name,
+          canvas_size: { width: updatedProject.width, height: updatedProject.height },
+          total_duration: updatedProject.duration,
+          elevenlabs_api_key: updatedProject.elevenLabsApiKey || ''
+        },
+        modifications: updatedProject.layers.reduce((acc: any, layer) => {
+          const key = (layer.name || '').replace(/\s+/g, '_').toLowerCase();
+          // Ensure text content is preserved into `script` for server-side rendering if it's plain text
+          let scriptVal = layer.script || '';
+          if (layer.type === 'text' && (!scriptVal || String(scriptVal).trim().length === 0)) {
+            const c = layer.content;
+            const isString = typeof c === 'string';
+            const isUrl = isString && (c.startsWith('http://') || c.startsWith('https://') || c.startsWith('data:') || c.startsWith('/uploads') || c.includes('/uploads/'));
+            const isFont = isString && !!c.match(/\.(ttf|otf|woff2?|eot)(\?|$)/i);
+            if (isString && !isUrl && !isFont) scriptVal = c;
+          }
+          acc[key] = {
+            id: layer.id,
+            original_name: layer.name,
+            type: layer.type,
+            content: layer.content,
+            group_id: (layer as any).groupId || undefined,
+            script: scriptVal,
+            voice_id: layer.voiceId || '',
+            transform: { x: layer.x, y: layer.y, width: layer.width, height: layer.height, rotation: layer.rotation, scale: 1 },
+            style: { opacity: layer.opacity, z_index: layer.zIndex, ...(layer.type === 'text' && { font_size: layer.fontSize, font_weight: layer.fontWeight, text_color: layer.color, font_family: (layer as any).fontFamily }) },
+            timing: { start_time: layer.start, duration: layer.duration }
+          };
+          return acc;
+        }, {}),
+        render_settings: { format: 'mp4', fps: 30 }
+      };
+
+      const saveRes = await fetch('/api/templates', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      if (saveRes.ok) {
+        const j = await saveRes.json();
+        updatedProject.id = j.template_id || updatedProject.id;
+        // after saving template, automatically request a render task so template is saved as video
+        try {
+          const renderRes = await fetch(`/api/templates/${updatedProject.id}/render`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+          if (!renderRes.ok) console.warn('Auto-render request failed', await renderRes.text());
+        } catch (e) { console.warn('Auto-render error', e); }
+      } else {
+        console.warn('Server template save failed', await saveRes.text());
+      }
+    } catch (err) {
+      console.error('Error saving project to server', err);
+    }
+
     setSavedProjects(prev => {
       const exists = prev.find(p => p.id === updatedProject.id);
       let newList;
@@ -326,6 +412,39 @@ const App: React.FC = () => {
             onSaveProject={handleSaveProject}
             onLoadProject={handleLoadProject}
             onDeleteProject={handleDeleteProject}
+            onExportAssets={async (id: string, groupId?: string) => {
+              try {
+                const url = groupId ? `/api/templates/${id}/export-assets?group=${encodeURIComponent(groupId)}` : `/api/templates/${id}/export-assets`;
+                const res = await fetch(url, { method: 'POST' });
+                if (!res.ok) { alert('Export failed'); return; }
+                const j = await res.json();
+                if (j.url) {
+                  window.open(j.url, '_blank');
+                } else if (j.folder) {
+                  alert('Assets copied to: ' + j.folder + '\nFiles: ' + (j.files||[]).join(', '));
+                } else {
+                  alert('Export completed. Files: ' + (j.files||[]).join(', '));
+                }
+              } catch (e) { console.error(e); alert('Export error'); }
+            }}
+            onExportAssetsDownload={async (id: string) => {
+              try {
+                const res = await fetch(`/api/templates/${id}/export-assets`, { method: 'POST' });
+                if (!res.ok) { alert('Download failed'); return; }
+                const j = await res.json();
+                if (j.url) {
+                  // programmatic download
+                  const a = document.createElement('a');
+                  a.href = j.url;
+                  a.download = j.url.split('/').pop() || 'assets.zip';
+                  document.body.appendChild(a);
+                  a.click();
+                  a.remove();
+                } else {
+                  alert('No downloadable archive available');
+                }
+              } catch (e) { console.error(e); alert('Download error'); }
+            }}
           />
         )}
         
@@ -389,6 +508,10 @@ const App: React.FC = () => {
           onDuplicate={() => handleDuplicateLayer(contextMenu.layerId)}
           onBringToFront={() => editorState.selectedLayerId && handleUpdateLayer(editorState.selectedLayerId, { zIndex: Math.max(...project.layers.map(l => l.zIndex)) + 1 })}
           onSendToBack={() => editorState.selectedLayerId && handleUpdateLayer(editorState.selectedLayerId, { zIndex: Math.min(...project.layers.map(l => l.zIndex)) - 1 })}
+              onAssignToComponent={(gid) => {
+                // assign groupId to the layer under contextMenu
+                handleUpdateLayer(contextMenu.layerId, { groupId: gid } as any);
+              }}
         />
       )}
 

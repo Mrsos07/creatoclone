@@ -17,11 +17,13 @@ export interface Layer {
   fill?: string;
   fontSize?: number;
   fontWeight?: string;
+  fontFamily?: string;
   color?: string;
   zIndex: number;
   volume?: number;
   script?: string; // النص البرمجي الخاص بالفويس أوفر أو النصوص الذكية
   voiceId?: string; // معرف الصوت المستخدم من ElevenLabs
+  groupId?: string; // optional group/component id to collect layers into a component
 }
 
 export interface Project {

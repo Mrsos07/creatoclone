@@ -1,0 +1,98 @@
+{
+  "id": "tpl_50c806511e6b",
+  "template": {
+    "template_info": {
+      "name": "TEST_TEMPLATE_AUTO",
+      "canvas_size": {
+        "width": 1280,
+        "height": 720
+      },
+      "total_duration": 0
+    },
+    "modifications": {
+      "intro_video": {
+        "id": "test_vid_1",
+        "type": "video",
+        "content": "http://localhost:3001/uploads/1766931386142-intro_video.bin",
+        "transform": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 720
+        },
+        "style": {
+          "z_index": 1
+        },
+        "timing": {
+          "start_time": 0,
+          "duration": 5
+        }
+      },
+      "overlay_image": {
+        "group_id": "comp1",
+        "id": "test_img_1",
+        "type": "image",
+        "content": "http://localhost:3001/uploads/1766931386163-overlay_image.bin",
+        "transform": {
+          "x": 200,
+          "y": 150,
+          "width": 400,
+          "height": 300
+        },
+        "style": {
+          "z_index": 3
+        },
+        "timing": {
+          "start_time": 5,
+          "duration": 6
+        }
+      },
+      "headline": {
+        "group_id": "comp1",
+        "id": "text1",
+        "type": "text",
+        "content": "اختبار حفظ التيمبلت وعرض النص",
+        "transform": {
+          "x": 300,
+          "y": 50,
+          "width": 700,
+          "height": 100
+        },
+        "style": {
+          "z_index": 4,
+          "font_size": 48,
+          "text_color": "#ffffff"
+        },
+        "timing": {
+          "start_time": 5,
+          "duration": 6
+        }
+      },
+      "voiceover": {
+        "group_id": "comp1",
+        "id": "audio1",
+        "type": "audio",
+        "content": "http://localhost:3001/uploads/1766931386164-voiceover.mp3",
+        "script": "هذا نص صوتي تجريبي",
+        "transform": {},
+        "style": {
+          "z_index": 5
+        },
+        "timing": {
+          "start_time": 5,
+          "duration": 6
+        }
+      }
+    },
+    "render_settings": {
+      "format": "mp4",
+      "fps": 25
+    },
+    "order": [
+      "intro_video",
+      "overlay_image",
+      "headline",
+      "voiceover"
+    ]
+  }
+}

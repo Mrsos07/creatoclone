@@ -1,0 +1,177 @@
+{
+  "id": "tpl_2af8f97bd219",
+  "template": {
+    "template_info": {
+      "template_id": "p-xlckieh7n",
+      "name": "Smart Automation Template",
+      "canvas_size": {
+        "width": 2560,
+        "height": 1440
+      },
+      "total_duration": 120,
+      "elevenlabs_api_key": "d4e2624f6a58d91ca1fbe3ec43eacd333d4d223685cf255cc01d8ca7af6a09bc"
+    },
+    "modifications": {
+      "base_video": {
+        "id": "6pzbalznx",
+        "original_name": "base_video",
+        "type": "video",
+        "content": "http://localhost:3001/uploads/1766922335346-base_video.bin",
+        "script": "",
+        "voice_id": "",
+        "transform": {
+          "x": 16.666666666666742,
+          "y": 33.619047619047706,
+          "width": 2522.095238095238,
+          "height": 1397.5238095238094,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 1,
+          "volume": 1
+        },
+        "timing": {
+          "start_time": 0,
+          "duration": 7.789999999999999
+        }
+      },
+      "base_image": {
+        "id": "feaqgfcos",
+        "original_name": "Base_Image",
+        "type": "image",
+        "content": "http://localhost:3001/uploads/1766922335457-base_image.bin",
+        "script": "",
+        "voice_id": "",
+        "transform": {
+          "x": -21.42857142857156,
+          "y": 41.238095238095184,
+          "width": 2548,
+          "height": 1374.6666666666667,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 2
+        },
+        "timing": {
+          "start_time": 7.941634000000001,
+          "duration": 10
+        }
+      },
+      "title": {
+        "id": "07z5q4qeg",
+        "original_name": "title",
+        "type": "text",
+        "content": "اليمن التعيس في مهب الريح",
+        "script": "اليمن التعيس في مهب الريح",
+        "voice_id": "",
+        "transform": {
+          "x": 885,
+          "y": 236,
+          "width": 800,
+          "height": 200,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 3,
+          "font_size": 66,
+          "font_weight": "900",
+          "text_color": "#ffffff",
+          "text_align": "center"
+        },
+        "timing": {
+          "start_time": 7.941634000000001,
+          "duration": 10
+        }
+      },
+      "new_text": {
+        "id": "7k53qp4n4",
+        "original_name": "New Text",
+        "type": "text",
+        "content": "اليمن التعيس عيال القحبه يدعون الى التفرقة والانفصال ",
+        "script": "اليمن التعيس عيال القحبه يدعون الى التفرقة والانفصال ",
+        "voice_id": "",
+        "transform": {
+          "x": 474,
+          "y": 418,
+          "width": 1581.7142857142858,
+          "height": 120.76190476190476,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 4,
+          "font_size": 80,
+          "font_weight": "900",
+          "text_color": "#ffffff",
+          "text_align": "center"
+        },
+        "timing": {
+          "start_time": 7.941634000000001,
+          "duration": 10
+        }
+      },
+      "news__image": {
+        "id": "onj8uswuy",
+        "original_name": "News_ Image",
+        "type": "image",
+        "content": "http://localhost:3001/uploads/1766922335461-news__image.bin",
+        "script": "",
+        "voice_id": "",
+        "transform": {
+          "x": 665.8095238095239,
+          "y": 563.9047619047619,
+          "width": 1168.952380952381,
+          "height": 652.3809523809523,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 5
+        },
+        "timing": {
+          "start_time": 7.941634000000001,
+          "duration": 10
+        }
+      },
+      "new_audio": {
+        "id": "ocjci2len",
+        "original_name": "New Audio",
+        "type": "audio",
+        "content": "http://localhost:3001/uploads/1766922335464-new_audio.bin",
+        "script": "اليمن التعيس عيال القحبه يدعون الى التفرقة والانفصال ",
+        "voice_id": "fkqevZRU7Xj52dY1CTkq",
+        "transform": {
+          "x": 1030,
+          "y": 570,
+          "width": 500,
+          "height": 500,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 6,
+          "volume": 1
+        },
+        "timing": {
+          "start_time": 7.941634000000001,
+          "duration": 5.851375
+        }
+      }
+    },
+    "render_settings": {
+      "format": "mp4",
+      "fps": 30,
+      "quality": "high",
+      "callback_url": "https://n8n.srv968786.hstgr.cloud/webhook/creatoclone"
+    }
+  }
+}

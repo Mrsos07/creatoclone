@@ -1,0 +1,173 @@
+{
+  "id": "r_76cf0979f575",
+  "status": "done",
+  "created_at": 1766930990341,
+  "template_id": "tpl_f30397ccc513",
+  "payload": {
+    "template_info": {
+      "template_id": "tpl_90a8fa93a8a9",
+      "name": "Smart Automation Template",
+      "canvas_size": {
+        "width": 2560,
+        "height": 1440
+      },
+      "total_duration": 22,
+      "elevenlabs_api_key": "d4e2624f6a58d91ca1fbe3ec43eacd333d4d223685cf255cc01d8ca7af6a09bc"
+    },
+    "modifications": {
+      "new_video": {
+        "id": "fpfiuhfa3",
+        "original_name": "New_Video",
+        "type": "video",
+        "content": "http://localhost:3001/uploads/1766930743061-new_video.bin",
+        "script": "",
+        "voice_id": "",
+        "transform": {
+          "x": 2.9523809523811906,
+          "y": 44,
+          "width": 2544.9523809523807,
+          "height": 1362.4761904761906,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 1,
+          "volume": 1
+        },
+        "timing": {
+          "start_time": 0,
+          "duration": 7.565000000000001
+        }
+      },
+      "new_image": {
+        "id": "691xelf8k",
+        "original_name": "New Image",
+        "type": "image",
+        "content": "http://localhost:3001/uploads/1766930743120-new_image.bin",
+        "script": "",
+        "voice_id": "",
+        "transform": {
+          "x": 1024,
+          "y": 629,
+          "width": 500,
+          "height": 500,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 5
+        },
+        "timing": {
+          "start_time": 7.542133999999988,
+          "duration": 10
+        }
+      },
+      "newext": {
+        "id": "63ty6bb01",
+        "original_name": "Newext",
+        "type": "text",
+        "content": "سيبيسشبسيبليسبل",
+        "script": "سيبيسشبسيبليسبل",
+        "voice_id": "",
+        "transform": {
+          "x": 876,
+          "y": 220,
+          "width": 800,
+          "height": 200,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 3,
+          "font_size": 80,
+          "font_weight": "900",
+          "text_color": "#ffffff",
+          "text_align": "center"
+        },
+        "timing": {
+          "start_time": 7.542133999999988,
+          "duration": 10
+        }
+      },
+      "new_text": {
+        "id": "cs47vg71k",
+        "original_name": "New_Text",
+        "type": "text",
+        "content": "dfdffd",
+        "script": "dfdffd",
+        "voice_id": "",
+        "transform": {
+          "x": 888,
+          "y": 367,
+          "width": 800,
+          "height": 200,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 4,
+          "font_size": 80,
+          "font_weight": "900",
+          "text_color": "#ffffff",
+          "text_align": "center"
+        },
+        "timing": {
+          "start_time": 7.542133999999988,
+          "duration": 10
+        }
+      },
+      "new_audio": {
+        "id": "ufsc7dq9m",
+        "original_name": "New Audio",
+        "type": "audio",
+        "content": "http://localhost:3001/uploads/ufsc7dq9m.mp3",
+        "script": "اليمن في طريقها للنهاية كس ام اليمن",
+        "voice_id": "fkqevZRU7Xj52dY1CTkq",
+        "transform": {
+          "x": 1030,
+          "y": 570,
+          "width": 500,
+          "height": 500,
+          "rotation": 0,
+          "scale": 1
+        },
+        "style": {
+          "opacity": 1,
+          "z_index": 6,
+          "volume": 1
+        },
+        "timing": {
+          "start_time": 7.623699999999948,
+          "duration": 3.57875
+        }
+      }
+    },
+    "render_settings": {
+      "format": "mp4",
+      "fps": 30,
+      "quality": "high",
+      "callback_url": "https://n8n.srv968786.hstgr.cloud/webhook/creatoclone"
+    },
+    "order": [
+      "new_video",
+      "new_image",
+      "newext",
+      "new_text",
+      "new_audio"
+    ],
+    "__request_base_url": "http://localhost:3001"
+  },
+  "started_at": 1766931042983,
+  "mp4_url": "http://localhost:3001/uploads/render-1766931044869.mp4",
+  "generatedAudio": [
+    {
+      "id": "ufsc7dq9m",
+      "url": "http://localhost:3001/uploads/ufsc7dq9m.mp3"
+    }
+  ],
+  "completed_at": 1766931053027
+}
