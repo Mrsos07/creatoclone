@@ -13,8 +13,14 @@ const app = express();
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Serve static built files
-app.use(express.static(path.join(__dirname, '..', 'dist')));
+// Serve static built files if present (production build)
+const distDir = path.join(__dirname, '..', 'dist');
+if (fs.existsSync(path.join(distDir, 'index.html'))) {
+  app.use(express.static(distDir));
+  console.log('Serving static files from', distDir);
+} else {
+  console.warn('Warning: dist/index.html not found — frontend build missing. Run `npm run build` in project root to generate static files.');
+}
 
 // Ensure uploads folder exists and serve it
 const uploadsDir = path.join(__dirname, '..', 'uploads');
@@ -317,10 +323,16 @@ app.post('/api/render', async (req, res) => {
   }
 });
 
-// Fallback to index.html for SPA routing
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
-});
+// Fallback to index.html for SPA routing if built; otherwise return a simple message for API-only mode
+if (fs.existsSync(path.join(distDir, 'index.html'))) {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(distDir, 'index.html'));
+  });
+} else {
+  app.get('*', (req, res) => {
+    res.status(200).send('API server running. Frontend not built — run `npm run build` to generate UI.');
+  });
+}
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Server listening on port ${port}`));
